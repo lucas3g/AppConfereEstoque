@@ -1,0 +1,38 @@
+import 'package:confere_estoque/src/layers/data/datasources/product_get_datasource/product_get_datasource.dart';
+import 'package:confere_estoque/src/layers/data/dtos/product_dto.dart';
+import 'package:confere_estoque/src/layers/domain/entities/product_entity.dart';
+import 'package:confere_estoque/src/layers/services/api_service.dart';
+import 'package:confere_estoque/src/layers/services/helpers/params.dart';
+import 'package:dartz/dartz.dart';
+
+class ProductGetApiDataSourceImp implements ProductGetDataSource {
+  final ApiService _apiService;
+
+  ProductGetApiDataSourceImp({required ApiService apiService})
+      : _apiService = apiService;
+
+  @override
+  Future<Either<Exception, ProductEntity>> call({
+    required String codigo,
+    required int ccusto,
+  }) async {
+    try {
+      final ProductParams params = ProductParams(
+        codigo: codigo,
+        ccusto: ccusto,
+      );
+
+      final response = await _apiService.getProduct(params);
+
+      if (response.isNotEmpty) {
+        final ProductEntity productEntity = ProductDto.fromMap(response);
+
+        return Right(productEntity);
+      } else {
+        return Left(Exception('Error datasource'));
+      }
+    } catch (e) {
+      return Left(Exception('Error datasource'));
+    }
+  }
+}

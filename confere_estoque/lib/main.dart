@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:confere_estoque/app_widget.dart';
+import 'package:confere_estoque/src/core/inject.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -15,7 +16,9 @@ Future<void> main() async {
         ),
       );
 
-      runApp(AppWidget());
+      Inject.init();
+
+      runApp(const AppWidget());
     },
     (error, st) => print(error),
   );

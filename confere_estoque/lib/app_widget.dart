@@ -1,3 +1,4 @@
+import 'package:confere_estoque/src/layers/presentation/ui/pages/config/config_page.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/home_page.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/login/login_page.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/splash/splash_page.dart';
@@ -21,6 +22,7 @@ class _AppWidgetState extends State<AppWidget> {
         primarySwatch: AppTheme.colors.primary,
         appBarTheme: AppBarTheme(
           color: AppTheme.colors.primary,
+          foregroundColor: Colors.white,
         ),
       ),
       title: 'Conferência de Estoque',
@@ -29,6 +31,7 @@ class _AppWidgetState extends State<AppWidget> {
         '/splash': (context) => const SplashPage(),
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
+        '/config': (context) => const ConfigPage(),
       },
     );
   }

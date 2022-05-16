@@ -1,3 +1,4 @@
+import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 enum Estoques { fisico, contabil }
@@ -18,6 +19,7 @@ class _RadioGroupCFWidgetState extends State<RadioGroupCFWidget> {
       children: [
         Expanded(
           child: RadioListTile<Estoques>(
+              activeColor: AppTheme.colors.primary,
               title: const Text('Contabil'),
               value: Estoques.contabil,
               groupValue: estoques,
@@ -29,6 +31,7 @@ class _RadioGroupCFWidgetState extends State<RadioGroupCFWidget> {
         ),
         Expanded(
           child: RadioListTile<Estoques>(
+              activeColor: AppTheme.colors.primary,
               title: const Text('Fisico'),
               value: Estoques.fisico,
               groupValue: estoques,
