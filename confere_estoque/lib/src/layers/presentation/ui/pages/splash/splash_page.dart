@@ -1,3 +1,4 @@
+import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class SplashPage extends StatefulWidget {
@@ -21,6 +22,13 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      body: Center(
+        child: Text(
+          'Confere Estoque',
+          style: AppTheme.textStyles.titleSplash,
+        ),
+      ),
+    );
   }
 }

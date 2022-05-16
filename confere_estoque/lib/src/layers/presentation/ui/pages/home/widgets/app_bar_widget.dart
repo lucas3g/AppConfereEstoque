@@ -4,12 +4,9 @@ import 'package:confere_estoque/src/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSize {
-  final int currentIndex;
   final BuildContext context;
 
-  const AppBarWidget(
-      {Key? key, required this.currentIndex, required this.context})
-      : super(key: key);
+  const AppBarWidget({Key? key, required this.context}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -60,5 +57,5 @@ class AppBarWidget extends StatelessWidget implements PreferredSize {
       );
 
   @override
-  Size get preferredSize => Size.fromHeight(context.screenHeight * 0.13);
+  Size get preferredSize => Size.fromHeight(context.screenHeight * 0.14);
 }

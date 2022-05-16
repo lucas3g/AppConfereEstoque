@@ -5,8 +5,8 @@ abstract class AppColors {
   Color get backgroundPrimary;
   Color get button;
   Color get titleAppBar;
-  Color get titleImages;
-  Color get titleContainers;
+  Color get titleMercadoria;
+  Color get titleEstoque;
   Color get titlePontos;
   Color get logadoComSucesso;
   MaterialColor get primary;
@@ -27,10 +27,10 @@ class AppColorDefault implements AppColors {
   Color get titleAppBar => Colors.white;
 
   @override
-  Color get titleImages => Colors.black;
+  Color get titleMercadoria => Colors.black;
 
   @override
-  Color get titleContainers => Colors.black;
+  Color get titleEstoque => Colors.black;
 
   @override
   Color get titlePontos => const Color(0xffcf1f36);

@@ -6,9 +6,9 @@ import 'app_theme.dart';
 abstract class AppTextStyles {
   TextStyle get button;
   TextStyle get titleAppBar;
-  TextStyle get titleImages;
-  TextStyle get titleContainers;
-  TextStyle get titlePontos;
+  TextStyle get titleSplash;
+  TextStyle get titleMercadoria;
+  TextStyle get titleEstoque;
   TextStyle get titleNome;
   TextStyle get titleImageNaoEncontrada;
   TextStyle get textoSairApp;
@@ -28,21 +28,21 @@ class AppTextStylesDefault implements AppTextStyles {
       fontWeight: FontWeight.w700);
 
   @override
-  TextStyle get titleImages => GoogleFonts.montserrat(
-      fontSize: 12,
-      color: AppTheme.colors.titleImages,
-      fontWeight: FontWeight.w700);
-
-  @override
-  TextStyle get titleContainers => GoogleFonts.montserrat(
-      fontSize: 20,
-      color: AppTheme.colors.titleImages,
-      fontWeight: FontWeight.w700);
-
-  @override
-  TextStyle get titlePontos => GoogleFonts.montserrat(
-      fontSize: 40,
+  TextStyle get titleSplash => GoogleFonts.montserrat(
+      fontSize: 30,
       color: AppTheme.colors.primary,
+      fontWeight: FontWeight.w700);
+
+  @override
+  TextStyle get titleMercadoria => GoogleFonts.montserrat(
+      fontSize: 20,
+      color: AppTheme.colors.titleMercadoria,
+      fontWeight: FontWeight.w700);
+
+  @override
+  TextStyle get titleEstoque => GoogleFonts.montserrat(
+      fontSize: 18,
+      color: AppTheme.colors.titleEstoque,
       fontWeight: FontWeight.w700);
 
   @override
