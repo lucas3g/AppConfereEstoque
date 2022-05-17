@@ -17,6 +17,8 @@ class ProductEntity {
   final double CUSTO_ULTIMO;
   final String? GTIN;
   final double DESCONTO_MAX;
+  final double EST_FISICO;
+  final double EST_ATUAL;
 
   ProductEntity({
     required this.ID_MERCADORIA,
@@ -35,5 +37,7 @@ class ProductEntity {
     required this.CUSTO_ULTIMO,
     this.GTIN,
     required this.DESCONTO_MAX,
+    required this.EST_FISICO,
+    required this.EST_ATUAL,
   });
 }

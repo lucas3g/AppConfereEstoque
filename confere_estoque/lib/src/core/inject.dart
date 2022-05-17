@@ -1,15 +1,28 @@
+import 'package:confere_estoque/src/layers/data/datasources/ccustos_datasource/api/ccustos_get_all_datasource_imp.dart';
+import 'package:confere_estoque/src/layers/data/datasources/ccustos_datasource/ccustos_get_all_datasource.dart';
 import 'package:confere_estoque/src/layers/data/datasources/login_signin_datasource/api/login_signin_api_datasource_imp.dart';
+import 'package:confere_estoque/src/layers/data/datasources/login_signin_datasource/local/login_logout_local_datasource_imp.dart';
+import 'package:confere_estoque/src/layers/data/datasources/login_signin_datasource/login_logout_datasource.dart';
 import 'package:confere_estoque/src/layers/data/datasources/login_signin_datasource/login_signin_datasource.dart';
 import 'package:confere_estoque/src/layers/data/datasources/product_get_datasource/api/product_get_api_datasource_imp.dart';
 import 'package:confere_estoque/src/layers/data/datasources/product_get_datasource/product_get_datasource.dart';
+import 'package:confere_estoque/src/layers/data/repositories/ccustos_repositories/ccustos_get_all_repository_imp.dart';
+import 'package:confere_estoque/src/layers/data/repositories/login_logout_repository_imp.dart';
 import 'package:confere_estoque/src/layers/data/repositories/login_signin_repository_imp.dart';
 import 'package:confere_estoque/src/layers/data/repositories/product_repositories/product_get_repository_imp.dart';
+import 'package:confere_estoque/src/layers/domain/repositories/ccustos_repositories/ccustos_get_all_repository.dart';
+import 'package:confere_estoque/src/layers/domain/repositories/login_logout_repository.dart';
 import 'package:confere_estoque/src/layers/domain/repositories/login_signing_repository.dart';
 import 'package:confere_estoque/src/layers/domain/repositories/product_repositories/product_get_repository.dart';
+import 'package:confere_estoque/src/layers/domain/usecases/ccustos_usecases/ccustos_get_all_usecases.dart';
+import 'package:confere_estoque/src/layers/domain/usecases/ccustos_usecases/ccustos_get_all_usecases_imp.dart';
+import 'package:confere_estoque/src/layers/domain/usecases/login_usecases/login_logout_usecase.dart';
+import 'package:confere_estoque/src/layers/domain/usecases/login_usecases/login_logout_usecase_imp.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/login_usecases/login_signin_usecase.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/login_usecases/login_signin_usecase_imp.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/product_usecases/product_get_usecase.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/product_usecases/product_get_usecase_imp.dart';
+import 'package:confere_estoque/src/layers/presentation/blocs/ccustos_bloc/ccustos_bloc.dart';
 import 'package:confere_estoque/src/layers/presentation/blocs/login_bloc/login_bloc.dart';
 import 'package:confere_estoque/src/layers/presentation/blocs/product_bloc/product_bloc.dart';
 import 'package:confere_estoque/src/layers/services/api_service.dart';
@@ -46,8 +59,20 @@ class Inject {
       ),
     );
 
+    getIt.registerLazySingleton<LoginLogOutDataSource>(
+      () => LoginLogOutLocalDataSourceImp(
+        sharedService: getIt(),
+      ),
+    );
+
     getIt.registerLazySingleton<ProductGetDataSource>(
       () => ProductGetApiDataSourceImp(
+        apiService: getIt(),
+      ),
+    );
+
+    getIt.registerLazySingleton<CCustosGetAllDataSource>(
+      () => CCustosGetAllApiDataSourceImp(
         apiService: getIt(),
       ),
     );
@@ -57,8 +82,16 @@ class Inject {
       () => LoginSignInRepositoryImp(loginSigninDataSource: getIt()),
     );
 
+    getIt.registerLazySingleton<LoginLogOutRepository>(
+      () => LoginLogOutRepositoryImp(loginLogOutDataSource: getIt()),
+    );
+
     getIt.registerLazySingleton<ProductGetRepository>(
       () => ProductGetRepositoryImp(productGetDataSource: getIt()),
+    );
+
+    getIt.registerLazySingleton<CCustosGetAllRepository>(
+      () => CCustosGetAllRepositoryImp(ccustosGetAllDataSource: getIt()),
     );
 
     //USESCASES
@@ -66,15 +99,37 @@ class Inject {
       () => LoginSignInUseCaseImp(loginSignInRepository: getIt()),
     );
 
+    getIt.registerLazySingleton<LoginLogOutUseCase>(
+      () => LoginLogOutUseCaseImp(loginLogOutRepository: getIt()),
+    );
+
     getIt.registerLazySingleton<ProductGetUseCase>(
       () => ProductGetUseCaseImp(productGetRepository: getIt()),
     );
 
+    getIt.registerLazySingleton<CCustosGetAllUseCase>(
+      () => CCustosGetAllUseCasesImp(ccustosGetAllRepository: getIt()),
+    );
+
     //BLOCS
     getIt.registerLazySingleton<LoginBloc>(
-        () => LoginBloc(loginSignInUseCase: getIt()));
+      () => LoginBloc(
+        loginSignInUseCase: getIt(),
+        loginLogOutUseCase: getIt(),
+      ),
+    );
 
     getIt.registerLazySingleton<ProductBloc>(
-        () => ProductBloc(productGetUseCase: getIt()));
+      () => ProductBloc(
+        productGetUseCase: getIt(),
+      ),
+    );
+
+    getIt.registerLazySingleton<CCustosBloc>(
+      () => CCustosBloc(
+        ccustosGetAllUseCase: getIt(),
+        ccusto: 0,
+      ),
+    );
   }
 }

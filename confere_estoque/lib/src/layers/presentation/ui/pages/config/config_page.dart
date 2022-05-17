@@ -27,6 +27,16 @@ class _ConfigPageState extends State<ConfigPage> {
   final controllerIp = GetIt.I.get<SharedService>();
 
   @override
+  void initState() {
+    super.initState();
+
+    ipController.text = controllerIp
+        .readIpServer()
+        .substring(0, controllerIp.readIpServer().indexOf(':'));
+    portaController.text = controllerIp.readPortServer();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -87,7 +97,10 @@ class _ConfigPageState extends State<ConfigPage> {
             ElevatedButton(
               onPressed: () async {
                 if (await controllerIp.setIPServer(
-                    ip: '${ipController.text.trim()}:${portaController.text.trim()}')) {
+                        ip:
+                            '${ipController.text.trim()}:${portaController.text.trim()}') &&
+                    await controllerIp.setPortServer(
+                        port: portaController.text.trim())) {
                   const snackBar = SnackBar(
                     content: Text('IP do servidor salvo com sucesso'),
                   );

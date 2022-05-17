@@ -9,11 +9,9 @@ class DioApiServiceImp implements ApiService {
 
   DioApiServiceImp({required this.dio});
 
-  final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
-  final cnpj = GetIt.I.get<SharedService>().readCNPJ();
-
   @override
   Future<Map<String, dynamic>> getUser(LoginParams params) async {
+    final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
     final result = await dio.get(
       '$ipServer/login/${params.cnpj}',
       options: Options(
@@ -29,17 +27,41 @@ class DioApiServiceImp implements ApiService {
 
   @override
   Future<Map<String, dynamic>> getProduct(ProductParams params) async {
-    await Future.delayed(const Duration(seconds: 5));
+    final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
+    final cnpj = GetIt.I.get<SharedService>().readCNPJ();
     final result = await dio.get(
-      '$ipServer/produtos/$cnpj',
+      '$ipServer/produtos',
       options: Options(
         headers: {
           'id': params.codigo,
           'ccusto': params.ccusto,
+          'cnpj': cnpj,
         },
       ),
     );
 
-    return result.data;
+    if (result.data.isNotEmpty) {
+      return result.data[0];
+    } else {
+      return {'DESCRICAO': 'Produto não encontrado'};
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getAllCCustos() async {
+    final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
+    final cnpj = GetIt.I.get<SharedService>().readCNPJ();
+    final result = await dio.get(
+      '$ipServer/ccustos',
+      options: Options(
+        headers: {
+          'cnpj': cnpj,
+        },
+      ),
+    );
+
+    final listFrom = List<Map<String, dynamic>>.from(result.data);
+
+    return listFrom;
   }
 }

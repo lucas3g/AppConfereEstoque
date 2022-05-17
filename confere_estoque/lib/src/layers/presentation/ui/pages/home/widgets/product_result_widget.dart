@@ -1,9 +1,13 @@
+import 'package:confere_estoque/src/layers/domain/entities/product_entity.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
+import 'package:confere_estoque/src/utils/formatters.dart';
 import 'package:flutter/material.dart';
 
 class ProductResultWidget extends StatelessWidget {
-  const ProductResultWidget({Key? key}) : super(key: key);
+  final ProductEntity productEntity;
+  const ProductResultWidget({Key? key, required this.productEntity})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,28 +25,30 @@ class ProductResultWidget extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Coca-Cola',
+                  productEntity.DESCRICAO,
                   textAlign: TextAlign.center,
                   style: AppTheme.textStyles.titleMercadoria,
                 ),
               ),
             ],
           ),
-          const Text('Custo Real: R\$ 6,00'),
-          const Text('Valor Venda: R\$ 10,00'),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Estoque',
-                style: AppTheme.textStyles.titleEstoque,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Text('Estoque Contabil: 6,00'),
-          const Text('Estoque Fisico: 6,00'),
+          if (productEntity.DESCRICAO != 'Produto não encontrado') ...[
+            Text('Custo Real: ${productEntity.CUSTO_ULTIMO.reais()}'),
+            Text('Valor Venda: ${productEntity.VALOR_VENDA.reais()}'),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Estoque',
+                  style: AppTheme.textStyles.titleEstoque,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text('Estoque Contabil: ${productEntity.EST_ATUAL.Litros()}'),
+            Text('Estoque Fisico:${productEntity.EST_FISICO.Litros()}'),
+          ]
         ],
       ),
     );

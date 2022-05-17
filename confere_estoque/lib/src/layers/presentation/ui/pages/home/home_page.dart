@@ -1,3 +1,5 @@
+import 'package:confere_estoque/src/layers/domain/entities/product_entity.dart';
+import 'package:confere_estoque/src/layers/presentation/blocs/ccustos_bloc/ccustos_bloc.dart';
 import 'package:confere_estoque/src/layers/presentation/blocs/product_bloc/events/product_events.dart';
 import 'package:confere_estoque/src/layers/presentation/blocs/product_bloc/product_bloc.dart';
 import 'package:confere_estoque/src/layers/presentation/blocs/product_bloc/states/product_states.dart';
@@ -7,6 +9,7 @@ import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/ra
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -22,9 +25,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final blocProduct = GetIt.I.get<ProductBloc>();
+  final blocCCusto = GetIt.I.get<CCustosBloc>();
   final codigoController = TextEditingController();
   FocusNode codigo = FocusNode();
   FocusNode qtd = FocusNode();
+  GlobalKey<FormState> keyCod = GlobalKey<FormState>();
+  GlobalKey<FormState> keyQtd = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -32,8 +38,14 @@ class _HomePageState extends State<HomePage> {
 
     codigo.addListener(() {
       if (!codigo.hasFocus) {
+        if (!keyCod.currentState!.validate()) {
+          return;
+        }
         blocProduct.add(
-          ProductGetEvent(codigo: '1', ccusto: 101),
+          ProductGetEvent(
+            codigo: codigoController.text.trim(),
+            ccusto: blocCCusto.ccusto,
+          ),
         );
       }
     });
@@ -53,22 +65,31 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: TextField(
-                          controller: codigoController,
-                          focusNode: codigo,
-                          onEditingComplete: () {
-                            blocProduct.add(
-                              ProductGetEvent(codigo: '1', ccusto: 101),
-                            );
-                            FocusScope.of(context).requestFocus(FocusNode());
-                          },
-                          decoration: InputDecoration(
-                            label: const Text('Cód. Produto'),
-                            hintText: 'Digite o código do produto',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
+                        child: Form(
+                          key: keyCod,
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Código não pode ser vazio.';
+                              }
+                              return null;
+                            },
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            controller: codigoController,
+                            focusNode: codigo,
+                            onEditingComplete: () {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                            },
+                            decoration: InputDecoration(
+                              label: const Text('Cód. Produto'),
+                              hintText: 'Digite o código do produto',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                             ),
                           ),
                         ),
@@ -85,7 +106,10 @@ class _HomePageState extends State<HomePage> {
                                     false,
                                     ScanMode.BARCODE);
                             blocProduct.add(
-                              ProductGetEvent(codigo: '1', ccusto: 101),
+                              ProductGetEvent(
+                                codigo: codigoController.text.trim(),
+                                ccusto: blocCCusto.ccusto,
+                              ),
                             );
                             qtd.requestFocus();
                           },
@@ -104,14 +128,26 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  TextField(
-                    focusNode: qtd,
-                    decoration: InputDecoration(
-                      label: const Text('Quantidade'),
-                      hintText: 'Digite quantidade',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
+                  Form(
+                    key: keyQtd,
+                    child: TextFormField(
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Quantidade não pode ser vazia.';
+                        }
+                        return null;
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      focusNode: qtd,
+                      decoration: InputDecoration(
+                        label: const Text('Quantidade'),
+                        hintText: 'Digite quantidade',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -121,11 +157,16 @@ class _HomePageState extends State<HomePage> {
                       bloc: blocProduct,
                       builder: (context, state) {
                         return Stack(
-                          alignment: Alignment.center,
+                          alignment: state is ProductLoadingState ||
+                                  state is ProductErrorState
+                              ? Alignment.center
+                              : Alignment.topCenter,
                           children: [
                             AnimatedOpacity(
                               opacity: state is ProductLoadingState ? 1 : 0,
-                              duration: const Duration(milliseconds: 500),
+                              duration: Duration(
+                                  milliseconds:
+                                      state is ProductSuccessState ? 0 : 500),
                               child: SpinKitWave(
                                 color: AppTheme.colors.primary,
                                 size: 50.0,
@@ -133,8 +174,27 @@ class _HomePageState extends State<HomePage> {
                             ),
                             AnimatedOpacity(
                               opacity: state is ProductSuccessState ? 1 : 0,
-                              duration: const Duration(milliseconds: 500),
-                              child: const ProductResultWidget(),
+                              duration: Duration(
+                                  milliseconds:
+                                      state is ProductSuccessState ? 500 : 0),
+                              child: ProductResultWidget(
+                                productEntity: state is ProductSuccessState
+                                    ? state.productEntity
+                                    : ProductEntity(
+                                        ID_MERCADORIA: 'ID_MERCADORIA',
+                                        DESCRICAO: 'DESCRICAO',
+                                        SUCINTO: 'SUCINTO',
+                                        UNIDADE: 'UNIDADE',
+                                        SUBGRUPO: 'SUBGRUPO',
+                                        VALOR_VENDA: 0,
+                                        SERVICO: 'SERVICO',
+                                        ATIVO: 'ATIVO',
+                                        CUSTO_ULTIMO: 0,
+                                        DESCONTO_MAX: 0,
+                                        EST_FISICO: 0,
+                                        EST_ATUAL: 0,
+                                      ),
+                              ),
                             ),
                             AnimatedOpacity(
                               opacity: state is ProductErrorState ? 1 : 0,
@@ -159,17 +219,34 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.all(20),
                         child: SizedBox(
                           height: 50,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.check_circle_rounded),
-                                SizedBox(width: 10),
-                                Text('Atualizar estoque'),
-                              ],
-                            ),
-                          ),
+                          child: BlocBuilder<ProductBloc, ProductStates>(
+                              bloc: blocProduct,
+                              builder: (context, state) {
+                                return ElevatedButton(
+                                  onPressed: () {
+                                    if ((state is ProductSuccessState &&
+                                            state.productEntity.DESCRICAO ==
+                                                'Produto não encontrado') ||
+                                        (state is ProductErrorState)) {
+                                      const snackBar = SnackBar(
+                                        content: Text(
+                                            'Não é possível atualizar o estoque. Verifique a mercadoria.'),
+                                      );
+
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(snackBar);
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.check_circle_rounded),
+                                      SizedBox(width: 10),
+                                      Text('Atualizar estoque'),
+                                    ],
+                                  ),
+                                );
+                              }),
                         ),
                       ),
                     ],

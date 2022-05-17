@@ -55,4 +55,21 @@ class SharedPreferencesServiceImp implements SharedService {
   Future<void> setCNPJ({required String cnpj}) async {
     await sharedPreferences.setString('cnpj', cnpj);
   }
+
+  @override
+  Future<bool> removeLogado() async {
+    return await sharedPreferences.remove('user') &&
+        await sharedPreferences.remove('logado');
+  }
+
+  @override
+  String readPortServer() {
+    final port = sharedPreferences.getString('port') ?? '';
+    return port;
+  }
+
+  @override
+  Future<bool> setPortServer({required String port}) async {
+    return await sharedPreferences.setString('port', port);
+  }
 }

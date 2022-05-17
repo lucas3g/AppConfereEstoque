@@ -13,6 +13,8 @@ class LoginSuccessState extends LoginStates {
   });
 }
 
+class LoginLogOutSuccessState extends LoginStates {}
+
 class LoginErrorState extends LoginStates {
   final String message;
   final StackTrace? stackTrace;

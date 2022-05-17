@@ -37,6 +37,10 @@ class ProductDto extends ProductEntity {
   String? GTIN;
   @override
   double DESCONTO_MAX;
+  @override
+  double EST_FISICO;
+  @override
+  double EST_ATUAL;
   ProductDto({
     required this.ID_MERCADORIA,
     required this.DESCRICAO,
@@ -54,6 +58,8 @@ class ProductDto extends ProductEntity {
     required this.CUSTO_ULTIMO,
     this.GTIN,
     required this.DESCONTO_MAX,
+    required this.EST_FISICO,
+    required this.EST_ATUAL,
   }) : super(
           ID_MERCADORIA: ID_MERCADORIA,
           DESCRICAO: DESCRICAO,
@@ -71,6 +77,8 @@ class ProductDto extends ProductEntity {
           CUSTO_ULTIMO: CUSTO_ULTIMO,
           GTIN: GTIN,
           DESCONTO_MAX: DESCONTO_MAX,
+          EST_FISICO: EST_FISICO,
+          EST_ATUAL: EST_ATUAL,
         );
 
   ProductDto copyWith({
@@ -90,6 +98,8 @@ class ProductDto extends ProductEntity {
     double? CUSTO_ULTIMO,
     String? GTIN,
     double? DESCONTO_MAX,
+    double? EST_FISICO,
+    double? EST_ATUAL,
   }) {
     return ProductDto(
       ID_MERCADORIA: ID_MERCADORIA ?? this.ID_MERCADORIA,
@@ -108,6 +118,8 @@ class ProductDto extends ProductEntity {
       CUSTO_ULTIMO: CUSTO_ULTIMO ?? this.CUSTO_ULTIMO,
       GTIN: GTIN ?? this.GTIN,
       DESCONTO_MAX: DESCONTO_MAX ?? this.DESCONTO_MAX,
+      EST_FISICO: EST_FISICO ?? this.EST_FISICO,
+      EST_ATUAL: EST_ATUAL ?? this.EST_ATUAL,
     );
   }
 
@@ -129,6 +141,8 @@ class ProductDto extends ProductEntity {
       'CUSTO_ULTIMO': CUSTO_ULTIMO,
       'GTIN': GTIN,
       'DESCONTO_MAX': DESCONTO_MAX,
+      'EST_FISICO': EST_FISICO,
+      'EST_ATUAL': EST_ATUAL,
     };
   }
 
@@ -150,6 +164,8 @@ class ProductDto extends ProductEntity {
       CUSTO_ULTIMO: map['CUSTO_ULTIMO']?.toDouble() ?? 0.0,
       GTIN: map['GTIN'],
       DESCONTO_MAX: map['DESCONTO_MAX']?.toDouble() ?? 0.0,
+      EST_FISICO: map['EST_FISICO']?.toDouble() ?? 0.0,
+      EST_ATUAL: map['EST_ATUAL']?.toDouble() ?? 0.0,
     );
   }
 

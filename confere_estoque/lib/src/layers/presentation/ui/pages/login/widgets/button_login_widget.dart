@@ -60,7 +60,8 @@ class _ButtonLoginWidgetState extends State<ButtonLoginWidget> {
         );
       } else if (state is LoginErrorState) {
         const snackBar = SnackBar(
-          content: Text('Opss... Não foi possivel fazer o login.'),
+          content:
+              Text('Opss... Não foi possivel fazer o login. Tente novamente.'),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -69,25 +70,33 @@ class _ButtonLoginWidgetState extends State<ButtonLoginWidget> {
   }
 
   @override
+  void dispose() {
+    sub.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        if (!widget.keyCNPJ.currentState!.validate() ||
-            !widget.keyLogin.currentState!.validate() ||
-            !widget.keyPassword.currentState!.validate()) {
-          return;
-        }
-        FocusScope.of(context).requestFocus(FocusNode());
-        bloc.add(LoginSignInEvent(
-          cnpj: widget.cnpj,
-          login: widget.login,
-          password: widget.password,
-        ));
-      },
-      child: BlocBuilder<LoginBloc, LoginStates>(
-          bloc: bloc,
-          builder: (context, state) {
-            return AnimatedContainer(
+    return BlocBuilder<LoginBloc, LoginStates>(
+        bloc: bloc,
+        builder: (context, state) {
+          return GestureDetector(
+            onTap: () async {
+              if (!widget.keyCNPJ.currentState!.validate() ||
+                  !widget.keyLogin.currentState!.validate() ||
+                  !widget.keyPassword.currentState!.validate()) {
+                return;
+              }
+              FocusScope.of(context).requestFocus(FocusNode());
+              if (state is! LoginLoadingState) {
+                bloc.add(LoginSignInEvent(
+                  cnpj: widget.cnpj,
+                  login: widget.login,
+                  password: widget.password,
+                ));
+              }
+            },
+            child: AnimatedContainer(
               alignment: Alignment.center,
               height: 45,
               width: state is LoginLoadingState || state is LoginSuccessState
@@ -153,8 +162,8 @@ class _ButtonLoginWidgetState extends State<ButtonLoginWidget> {
                   ),
                 ],
               ),
-            );
-          }),
-    );
+            ),
+          );
+        });
   }
 }

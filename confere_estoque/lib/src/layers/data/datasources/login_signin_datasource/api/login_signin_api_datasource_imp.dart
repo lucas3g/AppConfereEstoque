@@ -5,6 +5,7 @@ import 'package:confere_estoque/src/layers/services/api_service.dart';
 import 'package:confere_estoque/src/layers/services/helpers/params.dart';
 import 'package:confere_estoque/src/layers/services/shared_service.dart';
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 
 class LoginSignInApiDataSourceImp implements LoginSigninDataSource {
   final ApiService _apiService;
@@ -41,8 +42,8 @@ class LoginSignInApiDataSourceImp implements LoginSigninDataSource {
       } else {
         return Left(Exception('Error datasource'));
       }
-    } catch (e) {
-      return Left(Exception('Error datasource'));
+    } on DioError catch (e) {
+      return Left(Exception(e.message));
     }
   }
 }
