@@ -29,6 +29,7 @@ class DioApiServiceImp implements ApiService {
 
   @override
   Future<Map<String, dynamic>> getProduct(ProductParams params) async {
+    await Future.delayed(const Duration(seconds: 5));
     final result = await dio.get(
       '$ipServer/produtos/$cnpj',
       options: Options(

@@ -4,6 +4,7 @@ import 'package:confere_estoque/src/layers/domain/entities/product_entity.dart';
 import 'package:confere_estoque/src/layers/services/api_service.dart';
 import 'package:confere_estoque/src/layers/services/helpers/params.dart';
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 
 class ProductGetApiDataSourceImp implements ProductGetDataSource {
   final ApiService _apiService;
@@ -31,8 +32,8 @@ class ProductGetApiDataSourceImp implements ProductGetDataSource {
       } else {
         return Left(Exception('Error datasource'));
       }
-    } catch (e) {
-      return Left(Exception('Error datasource'));
+    } on DioError catch (e) {
+      return Left(Exception(e.message));
     }
   }
 }

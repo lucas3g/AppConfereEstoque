@@ -4,9 +4,12 @@ import 'package:confere_estoque/src/layers/presentation/blocs/product_bloc/state
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/app_bar_widget.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/product_result_widget.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/radiogroup_cf_widget.dart';
+import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
@@ -19,6 +22,22 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final blocProduct = GetIt.I.get<ProductBloc>();
+  final codigoController = TextEditingController();
+  FocusNode codigo = FocusNode();
+  FocusNode qtd = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    codigo.addListener(() {
+      if (!codigo.hasFocus) {
+        blocProduct.add(
+          ProductGetEvent(codigo: '1', ccusto: 101),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +56,14 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: TextField(
-                          onEditingComplete: () => blocProduct
-                              .add(ProductGetEvent(codigo: '1', ccusto: 101)),
+                          controller: codigoController,
+                          focusNode: codigo,
+                          onEditingComplete: () {
+                            blocProduct.add(
+                              ProductGetEvent(codigo: '1', ccusto: 101),
+                            );
+                            FocusScope.of(context).requestFocus(FocusNode());
+                          },
                           decoration: InputDecoration(
                             label: const Text('Cód. Produto'),
                             hintText: 'Digite o código do produto',
@@ -52,7 +77,18 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(
                         height: 60,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            codigoController.text =
+                                await FlutterBarcodeScanner.scanBarcode(
+                                    '#ffcf1f36',
+                                    'Fechar',
+                                    false,
+                                    ScanMode.BARCODE);
+                            blocProduct.add(
+                              ProductGetEvent(codigo: '1', ccusto: 101),
+                            );
+                            qtd.requestFocus();
+                          },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -69,6 +105,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 15),
                   TextField(
+                    focusNode: qtd,
                     decoration: InputDecoration(
                       label: const Text('Quantidade'),
                       hintText: 'Digite quantidade',
@@ -84,20 +121,32 @@ class _HomePageState extends State<HomePage> {
                       bloc: blocProduct,
                       builder: (context, state) {
                         return Stack(
+                          alignment: Alignment.center,
                           children: [
                             AnimatedOpacity(
-                                opacity: state is ProductLoadingState ? 1 : 0,
-                                duration: const Duration(milliseconds: 500),
-                                child: const CircularProgressIndicator()),
+                              opacity: state is ProductLoadingState ? 1 : 0,
+                              duration: const Duration(milliseconds: 500),
+                              child: SpinKitWave(
+                                color: AppTheme.colors.primary,
+                                size: 50.0,
+                              ),
+                            ),
                             AnimatedOpacity(
                               opacity: state is ProductSuccessState ? 1 : 0,
                               duration: const Duration(milliseconds: 500),
                               child: const ProductResultWidget(),
                             ),
                             AnimatedOpacity(
-                              opacity: state is ProductInitialState ? 1 : 0,
+                              opacity: state is ProductErrorState ? 1 : 0,
                               duration: const Duration(milliseconds: 500),
-                              child: Container(),
+                              child: SizedBox(
+                                height: context.screenHeight * 0.38,
+                                child: SingleChildScrollView(
+                                  child: state is ProductErrorState
+                                      ? Text(state.message)
+                                      : const Text(''),
+                                ),
+                              ),
                             ),
                           ],
                         );

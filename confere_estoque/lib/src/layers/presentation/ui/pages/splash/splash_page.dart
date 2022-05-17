@@ -18,7 +18,7 @@ class _SplashPageState extends State<SplashPage> {
     if (GetIt.I.get<SharedService>().readLogado()) {
       await Navigator.pushReplacementNamed(context, '/home');
     } else {
-      await Navigator.pushReplacementNamed(context, '/login');
+      await Navigator.pushReplacementNamed(context, '/home');
     }
   }
 
