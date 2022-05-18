@@ -33,9 +33,9 @@ class DioApiServiceImp implements ApiService {
       '$ipServer/produtos',
       options: Options(
         headers: {
-          'id': params.codigo,
-          'ccusto': params.ccusto,
           'cnpj': cnpj,
+          'field': 'ID',
+          'value': params.codigo,
         },
       ),
     );
@@ -63,5 +63,56 @@ class DioApiServiceImp implements ApiService {
     final listFrom = List<Map<String, dynamic>>.from(result.data);
 
     return listFrom;
+  }
+
+  @override
+  Future<bool> updateEstoque(EstoqueParams params) async {
+    final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
+    final cnpj = GetIt.I.get<SharedService>().readCNPJ();
+    final result = await dio.put(
+      '$ipServer/estoque/${params.codigo}',
+      data: {
+        'MERCADORIA': params.codigo,
+        'CCUSTO': params.ccusto,
+        params.tipoEstoque == 'C' ? 'EST_ATUAL' : 'EST_FISICO':
+            params.quantidade,
+      },
+      options: Options(
+        headers: {
+          'cnpj': cnpj,
+          'ccusto': params.ccusto,
+        },
+      ),
+    );
+
+    if (result.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getEstoque(ProductEstoque params) async {
+    final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
+    final cnpj = GetIt.I.get<SharedService>().readCNPJ();
+    final result = await dio.get(
+      '$ipServer/estoque/${params.codigo}',
+      options: Options(
+        headers: {
+          'id': params.codigo,
+          'ccusto': params.ccusto,
+          'cnpj': cnpj,
+        },
+      ),
+    );
+
+    if (result.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(result.data);
+    } else {
+      return List<Map<String, dynamic>>.from([
+        {'EST_ATUAL': 0, 'EST_FISICO': 0}
+      ]);
+    }
   }
 }

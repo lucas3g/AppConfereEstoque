@@ -49,6 +49,8 @@ dependencies:
   flutter_barcode_scanner: ^2.0.0
   flutter_svg: ^1.0.3
   shimmer: ^2.0.0
+  flutter_masked_text2: ^0.9.1
+  
 
 dev_dependencies:
   flutter_test:

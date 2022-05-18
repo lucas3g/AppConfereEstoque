@@ -8,7 +8,7 @@ abstract class AppGradients {
 
 class AppGradientsDefault implements AppGradients {
   @override
-  Gradient get background => LinearGradient(
+  Gradient get background => const LinearGradient(
         colors: [
           Color(0xFFEB5757),
           Color(0xFFFF0000),

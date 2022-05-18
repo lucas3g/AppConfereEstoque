@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:confere_estoque/app_widget.dart';
@@ -15,6 +17,11 @@ Future<void> main() async {
           statusBarColor: Colors.transparent, // status bar color
         ),
       );
+
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.portraitUp,
+      ]);
 
       Inject.init();
 

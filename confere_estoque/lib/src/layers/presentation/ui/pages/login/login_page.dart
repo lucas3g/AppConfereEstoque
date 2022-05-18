@@ -79,11 +79,12 @@ class _LoginPageState extends State<LoginPage> {
           controller: scrollController,
           child: SizedBox(
             height: Platform.isAndroid
-                ? context.screenHeight * 0.767
-                : context.screenHeight * 0.75,
+                ? context.screenHeight * 0.89
+                : context.screenHeight * 0.88,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const Spacer(),
                 Column(
                   children: [
                     MyInputWidget(
@@ -196,6 +197,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
+                const Spacer(),
+                Text(
+                  'EL Sistemas - 2022 - 54 3364 1588',
+                  style: AppTheme.textStyles.textoSairApp,
+                )
               ],
             ),
           ),

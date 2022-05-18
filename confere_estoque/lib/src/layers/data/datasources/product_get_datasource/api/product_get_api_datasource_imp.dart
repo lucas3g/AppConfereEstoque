@@ -23,10 +23,21 @@ class ProductGetApiDataSourceImp implements ProductGetDataSource {
         ccusto: ccusto,
       );
 
+      final ProductEstoque paramsEstoque = ProductEstoque(
+        codigo: codigo,
+        ccusto: ccusto,
+      );
+
       final response = await _apiService.getProduct(params);
+      final responseEstoque = await _apiService.getEstoque(paramsEstoque);
 
       if (response.isNotEmpty) {
-        final ProductEntity productEntity = ProductDto.fromMap(response);
+        late ProductEntity productEntity = ProductDto.fromMap(response);
+
+        productEntity.EST_ATUAL =
+            responseEstoque[0]['EST_ATUAL'].toDouble() ?? 0.0;
+        productEntity.EST_FISICO =
+            responseEstoque[0]['EST_FISICO'].toDouble() ?? 0.0;
 
         return Right(productEntity);
       } else {

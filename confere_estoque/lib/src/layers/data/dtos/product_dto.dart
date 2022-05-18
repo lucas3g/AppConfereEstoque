@@ -6,7 +6,7 @@ import 'package:confere_estoque/src/layers/domain/entities/product_entity.dart';
 
 class ProductDto extends ProductEntity {
   @override
-  String ID_MERCADORIA;
+  String ID;
   @override
   String DESCRICAO;
   @override
@@ -16,7 +16,7 @@ class ProductDto extends ProductEntity {
   @override
   String SUBGRUPO;
   @override
-  double VALOR_VENDA;
+  double VENDA;
   @override
   String? COMPOSICAO;
   @override
@@ -38,16 +38,16 @@ class ProductDto extends ProductEntity {
   @override
   double DESCONTO_MAX;
   @override
-  double EST_FISICO;
+  double? EST_FISICO;
   @override
-  double EST_ATUAL;
+  double? EST_ATUAL;
   ProductDto({
-    required this.ID_MERCADORIA,
+    required this.ID,
     required this.DESCRICAO,
     required this.SUCINTO,
     required this.UNIDADE,
     required this.SUBGRUPO,
-    required this.VALOR_VENDA,
+    required this.VENDA,
     this.COMPOSICAO,
     this.APLICACAO,
     required this.SERVICO,
@@ -58,15 +58,15 @@ class ProductDto extends ProductEntity {
     required this.CUSTO_ULTIMO,
     this.GTIN,
     required this.DESCONTO_MAX,
-    required this.EST_FISICO,
-    required this.EST_ATUAL,
+    this.EST_FISICO = 0.0,
+    this.EST_ATUAL = 0.0,
   }) : super(
-          ID_MERCADORIA: ID_MERCADORIA,
+          ID: ID,
           DESCRICAO: DESCRICAO,
           SUCINTO: SUCINTO,
           UNIDADE: UNIDADE,
           SUBGRUPO: SUBGRUPO,
-          VALOR_VENDA: VALOR_VENDA,
+          VENDA: VENDA,
           COMPOSICAO: COMPOSICAO,
           APLICACAO: APLICACAO,
           SERVICO: SERVICO,
@@ -82,12 +82,12 @@ class ProductDto extends ProductEntity {
         );
 
   ProductDto copyWith({
-    String? ID_MERCADORIA,
+    String? ID,
     String? DESCRICAO,
     String? SUCINTO,
     String? UNIDADE,
     String? SUBGRUPO,
-    double? VALOR_VENDA,
+    double? VENDA,
     String? COMPOSICAO,
     String? APLICACAO,
     String? SERVICO,
@@ -102,12 +102,12 @@ class ProductDto extends ProductEntity {
     double? EST_ATUAL,
   }) {
     return ProductDto(
-      ID_MERCADORIA: ID_MERCADORIA ?? this.ID_MERCADORIA,
+      ID: ID ?? this.ID,
       DESCRICAO: DESCRICAO ?? this.DESCRICAO,
       SUCINTO: SUCINTO ?? this.SUCINTO,
       UNIDADE: UNIDADE ?? this.UNIDADE,
       SUBGRUPO: SUBGRUPO ?? this.SUBGRUPO,
-      VALOR_VENDA: VALOR_VENDA ?? this.VALOR_VENDA,
+      VENDA: VENDA ?? this.VENDA,
       COMPOSICAO: COMPOSICAO ?? this.COMPOSICAO,
       APLICACAO: APLICACAO ?? this.APLICACAO,
       SERVICO: SERVICO ?? this.SERVICO,
@@ -125,12 +125,12 @@ class ProductDto extends ProductEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      'ID_MERCADORIA': ID_MERCADORIA,
+      'ID': ID,
       'DESCRICAO': DESCRICAO,
       'SUCINTO': SUCINTO,
       'UNIDADE': UNIDADE,
       'SUBGRUPO': SUBGRUPO,
-      'VALOR_VENDA': VALOR_VENDA,
+      'VENDA': VENDA,
       'COMPOSICAO': COMPOSICAO,
       'APLICACAO': APLICACAO,
       'SERVICO': SERVICO,
@@ -148,24 +148,22 @@ class ProductDto extends ProductEntity {
 
   factory ProductDto.fromMap(Map<String, dynamic> map) {
     return ProductDto(
-      ID_MERCADORIA: map['ID_MERCADORIA'] ?? '',
+      ID: map['ID'] ?? '',
       DESCRICAO: map['DESCRICAO'] ?? '',
       SUCINTO: map['SUCINTO'] ?? '',
       UNIDADE: map['UNIDADE'] ?? '',
       SUBGRUPO: map['SUBGRUPO'] ?? '',
-      VALOR_VENDA: map['VALOR_VENDA']?.toDouble() ?? 0.0,
-      COMPOSICAO: map['COMPOSICAO'],
-      APLICACAO: map['APLICACAO'],
+      VENDA: map['VENDA']?.toDouble() ?? 0.0,
+      COMPOSICAO: map['COMPOSICAO'] ?? '',
+      APLICACAO: map['APLICACAO'] ?? '',
       SERVICO: map['SERVICO'] ?? '',
       ATIVO: map['ATIVO'] ?? '',
-      CODIGO_ORIGINAL: map['CODIGO_ORIGINAL'],
-      MARCA: map['MARCA'],
-      MODELO: map['MODELO'],
+      CODIGO_ORIGINAL: map['CODIGO_ORIGINAL'] ?? '',
+      MARCA: map['MARCA'] ?? '',
+      MODELO: map['MODELO'] ?? '',
       CUSTO_ULTIMO: map['CUSTO_ULTIMO']?.toDouble() ?? 0.0,
-      GTIN: map['GTIN'],
+      GTIN: map['GTIN'] ?? '',
       DESCONTO_MAX: map['DESCONTO_MAX']?.toDouble() ?? 0.0,
-      EST_FISICO: map['EST_FISICO']?.toDouble() ?? 0.0,
-      EST_ATUAL: map['EST_ATUAL']?.toDouble() ?? 0.0,
     );
   }
 

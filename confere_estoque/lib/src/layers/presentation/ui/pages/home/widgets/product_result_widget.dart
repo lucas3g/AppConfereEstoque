@@ -34,7 +34,7 @@ class ProductResultWidget extends StatelessWidget {
           ),
           if (productEntity.DESCRICAO != 'Produto não encontrado') ...[
             Text('Custo Real: ${productEntity.CUSTO_ULTIMO.reais()}'),
-            Text('Valor Venda: ${productEntity.VALOR_VENDA.reais()}'),
+            Text('Valor Venda: ${productEntity.VENDA.reais()}'),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -46,8 +46,8 @@ class ProductResultWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            Text('Estoque Contabil: ${productEntity.EST_ATUAL.Litros()}'),
-            Text('Estoque Fisico:${productEntity.EST_FISICO.Litros()}'),
+            Text('Estoque Contabil: ${productEntity.EST_ATUAL!.Litros()}'),
+            Text('Estoque Fisico:${productEntity.EST_FISICO!.Litros()}'),
           ]
         ],
       ),
