@@ -1,4 +1,4 @@
-import 'package:confere_estoque/src/layers/data/datasources/product_get_datasource/product_get_datasource.dart';
+import 'package:confere_estoque/src/layers/data/datasources/product_datasource/product_get_datasource.dart';
 import 'package:confere_estoque/src/layers/domain/entities/product_entity.dart';
 import 'package:confere_estoque/src/layers/domain/repositories/product_repositories/product_get_repository.dart';
 import 'package:dartz/dartz.dart';

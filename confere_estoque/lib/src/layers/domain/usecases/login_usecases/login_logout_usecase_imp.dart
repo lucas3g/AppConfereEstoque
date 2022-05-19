@@ -1,4 +1,4 @@
-import 'package:confere_estoque/src/layers/domain/repositories/login_logout_repository.dart';
+import 'package:confere_estoque/src/layers/domain/repositories/login_repositories/login_logout_repository.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/login_usecases/login_logout_usecase.dart';
 import 'package:dartz/dartz.dart';
 

@@ -1,4 +1,4 @@
-import 'package:confere_estoque/src/layers/data/datasources/login_signin_datasource/login_logout_datasource.dart';
+import 'package:confere_estoque/src/layers/data/datasources/login_datasource/login_logout_datasource.dart';
 import 'package:confere_estoque/src/layers/services/shared_service.dart';
 import 'package:dartz/dartz.dart';
 

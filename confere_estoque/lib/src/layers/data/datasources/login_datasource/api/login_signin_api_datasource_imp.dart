@@ -1,4 +1,4 @@
-import 'package:confere_estoque/src/layers/data/datasources/login_signin_datasource/login_signin_datasource.dart';
+import 'package:confere_estoque/src/layers/data/datasources/login_datasource/login_signin_datasource.dart';
 import 'package:confere_estoque/src/layers/data/dtos/user_dto.dart';
 import 'package:confere_estoque/src/layers/domain/entities/user_entity.dart';
 import 'package:confere_estoque/src/layers/services/api_service.dart';

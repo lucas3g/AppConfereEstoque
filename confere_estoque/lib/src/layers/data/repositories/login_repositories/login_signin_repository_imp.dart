@@ -1,6 +1,6 @@
-import 'package:confere_estoque/src/layers/data/datasources/login_signin_datasource/login_signin_datasource.dart';
+import 'package:confere_estoque/src/layers/data/datasources/login_datasource/login_signin_datasource.dart';
 import 'package:confere_estoque/src/layers/domain/entities/user_entity.dart';
-import 'package:confere_estoque/src/layers/domain/repositories/login_signing_repository.dart';
+import 'package:confere_estoque/src/layers/domain/repositories/login_repositories/login_signing_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class LoginSignInRepositoryImp implements LoginSignInRepository {
