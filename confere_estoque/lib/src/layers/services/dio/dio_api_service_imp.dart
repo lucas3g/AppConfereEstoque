@@ -123,29 +123,4 @@ class DioApiServiceImp implements ApiService {
       ]);
     }
   }
-
-  @override
-  Future<List<Map<String, dynamic>>> getEstoqueAndSet(
-      ProductEstoque params) async {
-    final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
-    final cnpj = GetIt.I.get<SharedService>().readCNPJ();
-    final result = await dio.get(
-      '$ipServer/estoque/${params.codigo}',
-      options: Options(
-        headers: {
-          'id': params.codigo,
-          'ccusto': params.ccusto,
-          'cnpj': cnpj,
-        },
-      ),
-    );
-
-    if (result.statusCode == 200) {
-      return List<Map<String, dynamic>>.from(result.data);
-    } else {
-      return [
-        {'EST_ATUAL': 0, 'EST_FISICO': 0}
-      ];
-    }
-  }
 }

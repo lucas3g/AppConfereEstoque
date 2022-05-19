@@ -36,6 +36,10 @@ class _ConfigPageState extends State<ConfigPage> {
           .substring(0, controllerIp.readIpServer().indexOf(':'));
       portaController.text = controllerIp.readPortServer();
     }
+
+    if (portaController.text.isEmpty) {
+      portaController.text = '9000';
+    }
   }
 
   @override

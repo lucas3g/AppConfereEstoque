@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                           ProductEstoque params = ProductEstoque(
                               ccusto: blocCCusto.ccusto, codigo: produto.ID);
 
-                          final prod = await _api.getEstoqueAndSet(params);
+                          final prod = await _api.getEstoque(params);
 
                           codigoController.text = produto.ID;
 
