@@ -36,7 +36,7 @@ class SharedPreferencesServiceImp implements SharedService {
 
   @override
   bool readLogado() {
-    final logado = sharedPreferences.getString('logado');
+    final logado = sharedPreferences.getString('logado') ?? 'N';
     return logado == 'S' ? true : false;
   }
 

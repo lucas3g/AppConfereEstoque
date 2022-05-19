@@ -9,12 +9,14 @@ class ProductGetRepositoryImp implements ProductGetRepository {
   ProductGetRepositoryImp({required this.productGetDataSource});
 
   @override
-  Future<Either<Exception, ProductEntity>> call({
+  Future<Either<Exception, List<ProductEntity>>> call({
     required String codigo,
+    required String descricao,
     required int ccusto,
   }) async {
     return await productGetDataSource(
       codigo: codigo,
+      descricao: descricao,
       ccusto: ccusto,
     );
   }

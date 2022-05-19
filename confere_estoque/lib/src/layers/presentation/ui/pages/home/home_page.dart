@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:confere_estoque/src/layers/domain/entities/product_entity.dart';
 import 'package:confere_estoque/src/layers/presentation/blocs/ccustos_bloc/ccustos_bloc.dart';
 import 'package:confere_estoque/src/layers/presentation/blocs/estoque_bloc/estoque_bloc.dart';
@@ -11,6 +14,8 @@ import 'package:confere_estoque/src/layers/presentation/blocs/product_bloc/state
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/app_bar_widget.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/product_result_widget.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/radiogroup_cf_widget.dart';
+import 'package:confere_estoque/src/layers/services/api_service.dart';
+import 'package:confere_estoque/src/layers/services/helpers/params.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
 import 'package:confere_estoque/src/utils/formatters.dart';
@@ -33,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   final blocProduct = GetIt.I.get<ProductBloc>();
   final blocCCusto = GetIt.I.get<CCustosBloc>();
   final blocEstoque = GetIt.I.get<EstoqueBloc>();
+  final _api = GetIt.I.get<ApiService>();
   final codigoController = TextEditingController();
   final descController = TextEditingController();
   final qtdController = MoneyMaskedTextController();
@@ -44,24 +50,13 @@ class _HomePageState extends State<HomePage> {
   GlobalKey<FormState> keyQtd = GlobalKey<FormState>();
 
   late StreamSubscription subEstoque;
+  late StreamSubscription subProd;
+
+  late List<ProductEntity> productEntitySelected = [];
 
   @override
   void initState() {
     super.initState();
-
-    codigo.addListener(() {
-      if (!codigo.hasFocus) {
-        if (!keyCod.currentState!.validate()) {
-          return;
-        }
-        blocProduct.add(
-          ProductGetEvent(
-            codigo: codigoController.text.trim(),
-            ccusto: blocCCusto.ccusto,
-          ),
-        );
-      }
-    });
 
     subEstoque = blocEstoque.stream.listen((state) {
       if (state is EstoqueSuccessState) {
@@ -71,6 +66,7 @@ class _HomePageState extends State<HomePage> {
 
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         codigoController.clear();
+        descController.clear();
         qtdController.text = '0.00';
       }
       if (state is EstoqueErrorState) {
@@ -82,12 +78,92 @@ class _HomePageState extends State<HomePage> {
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     });
+
+    subProd = blocProduct.stream.listen((state) async {
+      if (state is ProductSuccessState && state.productEntity.length > 1) {
+        await abreModal(products: state.productEntity);
+      } else if (state is ProductSuccessState) {
+        productEntitySelected = state.productEntity;
+      }
+    });
   }
 
   @override
   void dispose() {
     subEstoque.cancel();
+    subProd.cancel();
     super.dispose();
+  }
+
+  Future<void> abreModal({required List<ProductEntity> products}) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          scrollable: true,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Selecione um produto',
+                style: AppTheme.textStyles.textoSairApp,
+              ),
+              const Divider(),
+              ...products
+                  .map((produto) => ListTile(
+                        leading: CachedNetworkImage(
+                          alignment: Alignment.centerLeft,
+                          imageUrl:
+                              'https://cdn-cosmos.bluesoft.com.br/products/${produto.GTIN}',
+                          placeholder: (context, url) => Container(
+                            alignment: Alignment.centerLeft,
+                            width: 60,
+                            height: 60,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.colors.primary,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.error, color: Colors.red, size: 30),
+                            ],
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(produto.DESCRICAO),
+                        onTap: () async {
+                          productEntitySelected.add(produto);
+
+                          ProductEstoque params = ProductEstoque(
+                              ccusto: blocCCusto.ccusto, codigo: produto.ID);
+
+                          final prod = await _api.getEstoqueAndSet(params);
+
+                          codigoController.text = produto.ID;
+
+                          productEntitySelected[0].EST_ATUAL =
+                              double.parse(prod[0]['EST_ATUAL'].toString())
+                                  .toDouble();
+                          productEntitySelected[0].EST_FISICO =
+                              double.parse(prod[0]['EST_FISICO'].toString())
+                                  .toDouble();
+
+                          setState(() {});
+
+                          Navigator.pop(context, produto);
+                        },
+                      ))
+                  .toList()
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -111,13 +187,14 @@ class _HomePageState extends State<HomePage> {
                         child: Form(
                           key: keyCod,
                           child: TextFormField(
-                            validator: (value) {
-                              if (descController.text.trim().isEmpty &&
-                                  (value == null || value.isEmpty)) {
-                                return 'Código não pode ser vazio.';
-                              }
-                              return null;
-                            },
+                            onTap: descController.clear,
+                            // validator: (value) {
+                            //   if (descController.text.trim().isEmpty &&
+                            //       (value == null || value.isEmpty)) {
+                            //     return 'Código não pode ser vazio.';
+                            //   }
+                            //   return null;
+                            // },
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             controller: codigoController,
@@ -153,13 +230,20 @@ class _HomePageState extends State<HomePage> {
                                     'Fechar',
                                     false,
                                     ScanMode.BARCODE);
-                            blocProduct.add(
-                              ProductGetEvent(
-                                codigo: codigoController.text.trim(),
-                                ccusto: blocCCusto.ccusto,
-                              ),
-                            );
-                            qtd.requestFocus();
+
+                            if (codigoController.text.trim() != '-1') {
+                              blocProduct.add(
+                                ProductGetEvent(
+                                  codigo: codigoController.text.trim(),
+                                  descricao: '',
+                                  ccusto: blocCCusto.ccusto,
+                                ),
+                              );
+
+                              qtd.requestFocus();
+                            } else {
+                              codigoController.clear();
+                            }
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -180,13 +264,15 @@ class _HomePageState extends State<HomePage> {
                 Form(
                   key: keyDesc,
                   child: TextFormField(
-                    validator: (value) {
-                      if (codigoController.text.trim().isEmpty &&
-                          (value == null || value.isEmpty)) {
-                        return 'Descrição não pode ser vazio.';
-                      }
-                      return null;
-                    },
+                    onTap: codigoController.clear,
+
+                    // validator: (value) {
+                    //   if (codigoController.text.trim().isEmpty &&
+                    //       (value == null || value.isEmpty)) {
+                    //     return 'Descrição não pode ser vazio.';
+                    //   }
+                    //   return null;
+                    // },
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: descController,
                     focusNode: desc,
@@ -204,6 +290,80 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Expanded(
+                      child: BlocBuilder<ProductBloc, ProductStates>(
+                          bloc: blocProduct,
+                          builder: (context, state) {
+                            return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(0, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              onPressed: state is! ProductLoadingState
+                                  ? () {
+                                      if (codigoController.text
+                                              .trim()
+                                              .isEmpty &&
+                                          descController.text.trim().isEmpty) {
+                                        const snackBar = SnackBar(
+                                          content: Text(
+                                              'Código e Descrição estão em branco.'),
+                                        );
+
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+                                        return;
+                                      }
+
+                                      if (descController.text.trim().length <
+                                          3) {
+                                        const snackBar = SnackBar(
+                                          content: Text(
+                                              'Descrição deve conter pelo menos 3 caracteres.'),
+                                        );
+
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+                                        return;
+                                      }
+
+                                      FocusScope.of(context)
+                                          .requestFocus(FocusNode());
+
+                                      if (productEntitySelected.isNotEmpty) {
+                                        productEntitySelected.clear();
+                                        productEntitySelected = [];
+                                      }
+
+                                      blocProduct.add(
+                                        ProductGetEvent(
+                                          codigo: codigoController.text.trim(),
+                                          descricao: descController.text.trim(),
+                                          ccusto: blocCCusto.ccusto,
+                                        ),
+                                      );
+                                    }
+                                  : null,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.search_rounded),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text('Buscar dados'),
+                                ],
+                              ),
+                            );
+                          }),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
                 Form(
                   key: keyQtd,
                   child: TextFormField(
@@ -215,7 +375,7 @@ class _HomePageState extends State<HomePage> {
                       if (value.contains('-')) {
                         return 'Quantidade não pode ser negativo.';
                       }
-                      if (value.contains('0,00')) {
+                      if (value == '0,00') {
                         return 'Quantidade não pode ser zero(0).';
                       }
                       return null;
@@ -232,9 +392,9 @@ class _HomePageState extends State<HomePage> {
                     keyboardType: TextInputType.number,
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 5),
                 const RadioGroupCFWidget(),
-                const SizedBox(height: 15),
+                const SizedBox(height: 5),
                 SizedBox(
                   child: BlocBuilder<ProductBloc, ProductStates>(
                       bloc: blocProduct,
@@ -259,15 +419,19 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             Visibility(
-                              visible: state is ProductSuccessState,
+                              visible: state is ProductSuccessState &&
+                                  productEntitySelected.isNotEmpty &&
+                                  productEntitySelected[0].DESCRICAO !=
+                                      'DESCRICAO',
                               child: AnimatedOpacity(
                                 opacity: state is ProductSuccessState ? 1 : 0,
                                 duration: Duration(
                                     milliseconds:
                                         state is ProductSuccessState ? 500 : 0),
                                 child: ProductResultWidget(
-                                  productEntity: state is ProductSuccessState
-                                      ? state.productEntity
+                                  productEntity: state is ProductSuccessState &&
+                                          productEntitySelected.isNotEmpty
+                                      ? productEntitySelected[0]
                                       : ProductEntity(
                                           ID: 'ID',
                                           DESCRICAO: 'DESCRICAO',
@@ -290,14 +454,25 @@ class _HomePageState extends State<HomePage> {
                               child: AnimatedOpacity(
                                 opacity: state is ProductErrorState ? 1 : 0,
                                 duration: const Duration(milliseconds: 500),
-                                child: SizedBox(
-                                  height: context.screenHeight * 0.38,
-                                  child: SingleChildScrollView(
-                                    child: state is ProductErrorState
-                                        ? Text(state.message)
-                                        : const Text(''),
-                                  ),
-                                ),
+                                child: state is ProductErrorState
+                                    ? Container(
+                                        alignment: Alignment.center,
+                                        padding: const EdgeInsets.all(20),
+                                        width: context.screenWidth,
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.colors.primary
+                                              .withAlpha(30),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          state.message
+                                              .replaceAll('Exception:', ''),
+                                          style:
+                                              AppTheme.textStyles.titleEstoque,
+                                        ),
+                                      )
+                                    : const Text(''),
                               ),
                             ),
                           ],
@@ -326,29 +501,22 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                     onPressed: stateEstoque
-                                            is! EstoqueLoadingState
+                                                is! EstoqueLoadingState &&
+                                            stateProduto is ProductSuccessState
                                         ? () {
-                                            if ((!keyCod.currentState!
-                                                        .validate() ||
-                                                    !keyDesc.currentState!
-                                                        .validate()) ||
-                                                !keyQtd.currentState!
-                                                    .validate()) {
-                                              return;
-                                            }
-                                            if ((stateProduto
-                                                        is ProductSuccessState &&
-                                                    stateProduto
-                                                            .productEntity.DESCRICAO ==
-                                                        'Produto não encontrado') ||
+                                            if ((productEntitySelected[0]
+                                                        .DESCRICAO ==
+                                                    'Produto não encontrado') ||
                                                 (stateProduto
                                                         is ProductErrorState ||
+                                                    (productEntitySelected[0]
+                                                            .ID ==
+                                                        'ID') ||
+                                                    qtdController.text.trim() ==
+                                                        '0,00') ||
+                                                productEntitySelected[0].ID !=
                                                     codigoController.text
-                                                        .trim()
-                                                        .isEmpty ||
-                                                    qtdController.text
-                                                        .trim()
-                                                        .isEmpty)) {
+                                                        .trim()) {
                                               const snackBar = SnackBar(
                                                 content: Text(
                                                     'Não é possível atualizar o estoque. Verifique a mercadoria.'),
@@ -361,9 +529,11 @@ class _HomePageState extends State<HomePage> {
 
                                             blocEstoque.add(
                                               UpdateEstoqueEvent(
-                                                codigo: codigoController.text,
+                                                codigo:
+                                                    productEntitySelected[0].ID,
                                                 ccusto: blocCCusto.ccusto,
-                                                quantidade: qtdController.text,
+                                                quantidade: qtdController.text
+                                                    .replaceAll('.', ''),
                                                 tipoEstoque:
                                                     blocEstoque.estoques.name ==
                                                             'contabil'

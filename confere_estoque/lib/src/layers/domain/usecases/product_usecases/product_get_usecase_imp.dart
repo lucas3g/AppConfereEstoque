@@ -9,12 +9,14 @@ class ProductGetUseCaseImp implements ProductGetUseCase {
   ProductGetUseCaseImp({required this.productGetRepository});
 
   @override
-  Future<Either<Exception, ProductEntity>> call({
+  Future<Either<Exception, List<ProductEntity>>> call({
     required String codigo,
+    required String descricao,
     required int ccusto,
   }) async {
     return await productGetRepository(
       codigo: codigo,
+      descricao: descricao,
       ccusto: ccusto,
     );
   }

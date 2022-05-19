@@ -12,10 +12,12 @@ class LoginParams {
 
 class ProductParams {
   final String codigo;
+  final String descricao;
   final int ccusto;
 
   ProductParams({
     required this.codigo,
+    required this.descricao,
     required this.ccusto,
   });
 }

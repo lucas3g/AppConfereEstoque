@@ -13,13 +13,15 @@ class ProductGetApiDataSourceImp implements ProductGetDataSource {
       : _apiService = apiService;
 
   @override
-  Future<Either<Exception, ProductEntity>> call({
+  Future<Either<Exception, List<ProductEntity>>> call({
     required String codigo,
+    required String descricao,
     required int ccusto,
   }) async {
     try {
       final ProductParams params = ProductParams(
         codigo: codigo,
+        descricao: descricao,
         ccusto: ccusto,
       );
 
@@ -29,20 +31,36 @@ class ProductGetApiDataSourceImp implements ProductGetDataSource {
       );
 
       final response = await _apiService.getProduct(params);
-      final responseEstoque = await _apiService.getEstoque(paramsEstoque);
 
-      if (response.isNotEmpty) {
-        late ProductEntity productEntity = ProductDto.fromMap(response);
+      if (response[0]['DESCRICAO'] == 'Produto não encontrado') {
+        return Left(Exception('Produto não encontrado'));
+      }
 
-        productEntity.EST_ATUAL =
+      if (response.isNotEmpty && response.length == 1) {
+        final responseEstoque = await _apiService.getEstoque(paramsEstoque);
+
+        late List<ProductEntity> productEntity =
+            response.map(ProductDto.fromMap).toList();
+
+        productEntity[0].EST_ATUAL =
             responseEstoque[0]['EST_ATUAL'].toDouble() ?? 0.0;
-        productEntity.EST_FISICO =
+        productEntity[0].EST_FISICO =
             responseEstoque[0]['EST_FISICO'].toDouble() ?? 0.0;
 
         return Right(productEntity);
-      } else {
-        return Left(Exception('Error datasource'));
       }
+
+      if (response.isNotEmpty && response.length > 1) {
+        late List<ProductEntity> productEntity =
+            response.map(ProductDto.fromMap).toList();
+
+        productEntity[0].EST_ATUAL = 0.0;
+        productEntity[0].EST_FISICO = 0.0;
+
+        return Right(productEntity);
+      }
+
+      return Left(Exception('Erro no datasource'));
     } on DioError catch (e) {
       return Left(Exception(e.message));
     }

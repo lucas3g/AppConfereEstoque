@@ -30,10 +30,12 @@ class _ConfigPageState extends State<ConfigPage> {
   void initState() {
     super.initState();
 
-    ipController.text = controllerIp
-        .readIpServer()
-        .substring(0, controllerIp.readIpServer().indexOf(':'));
-    portaController.text = controllerIp.readPortServer();
+    if (controllerIp.readIpServer().isNotEmpty) {
+      ipController.text = controllerIp
+          .readIpServer()
+          .substring(0, controllerIp.readIpServer().indexOf(':'));
+      portaController.text = controllerIp.readPortServer();
+    }
   }
 
   @override

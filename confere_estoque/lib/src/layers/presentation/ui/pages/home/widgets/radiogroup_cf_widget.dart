@@ -37,6 +37,7 @@ class _RadioGroupCFWidgetState extends State<RadioGroupCFWidget> {
                       });
                     }),
               ),
+              const SizedBox(width: 2),
               Expanded(
                 child: RadioListTile<Estoques>(
                     shape: RoundedRectangleBorder(

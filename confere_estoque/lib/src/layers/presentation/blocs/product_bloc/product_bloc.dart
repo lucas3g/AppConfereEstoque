@@ -16,6 +16,7 @@ class ProductBloc extends Bloc<ProductEvents, ProductStates> {
     emit(ProductLoadingState());
     final result = await productGetUseCase(
       codigo: event.codigo,
+      descricao: event.descricao,
       ccusto: event.ccusto,
     );
 

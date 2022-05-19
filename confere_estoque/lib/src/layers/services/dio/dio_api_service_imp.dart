@@ -13,10 +13,11 @@ class DioApiServiceImp implements ApiService {
   Future<Map<String, dynamic>> getUser(LoginParams params) async {
     final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
     final result = await dio.get(
-      '$ipServer/login/${params.cnpj}',
+      '$ipServer/login/',
       options: Options(
         headers: {
-          'login': params.login,
+          'cnpj': params.cnpj,
+          'usuario': params.login,
           'senha': params.password,
         },
       ),
@@ -26,7 +27,7 @@ class DioApiServiceImp implements ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getProduct(ProductParams params) async {
+  Future<List<Map<String, dynamic>>> getProduct(ProductParams params) async {
     final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
     final cnpj = GetIt.I.get<SharedService>().readCNPJ();
     final result = await dio.get(
@@ -34,17 +35,24 @@ class DioApiServiceImp implements ApiService {
       options: Options(
         headers: {
           'cnpj': cnpj,
-          'field': 'ID',
-          'value': params.codigo,
+          'field': params.codigo.isNotEmpty ? 'ID' : 'DESCRICAO',
+          'value': params.codigo.isNotEmpty ? params.codigo : params.descricao,
         },
       ),
     );
 
-    if (result.data.isNotEmpty) {
-      return result.data[0];
-    } else {
-      return {'DESCRICAO': 'Produto não encontrado'};
+    if (params.codigo.isNotEmpty && result.data.isNotEmpty) {
+      return List<Map<String, dynamic>>.from(result.data);
     }
+
+    if (params.descricao.isNotEmpty && result.data.isNotEmpty) {
+      final listFrom = List<Map<String, dynamic>>.from(result.data);
+      return listFrom;
+    }
+
+    return [
+      {'DESCRICAO': 'Produto não encontrado'}
+    ];
   }
 
   @override
@@ -113,6 +121,31 @@ class DioApiServiceImp implements ApiService {
       return List<Map<String, dynamic>>.from([
         {'EST_ATUAL': 0, 'EST_FISICO': 0}
       ]);
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getEstoqueAndSet(
+      ProductEstoque params) async {
+    final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
+    final cnpj = GetIt.I.get<SharedService>().readCNPJ();
+    final result = await dio.get(
+      '$ipServer/estoque/${params.codigo}',
+      options: Options(
+        headers: {
+          'id': params.codigo,
+          'ccusto': params.ccusto,
+          'cnpj': cnpj,
+        },
+      ),
+    );
+
+    if (result.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(result.data);
+    } else {
+      return [
+        {'EST_ATUAL': 0, 'EST_FISICO': 0}
+      ];
     }
   }
 }
