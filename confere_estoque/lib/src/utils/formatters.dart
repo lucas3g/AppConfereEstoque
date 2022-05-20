@@ -20,6 +20,14 @@ extension LitroDouble on double {
   }
 }
 
+extension Estoque on String {
+  double estoque() {
+    final format = NumberFormat('###,###,##0.00', 'pt_BR');
+
+    return format.parse(this).toDouble();
+  }
+}
+
 extension LitroInt on int {
   String LitrosInt() {
     final format = NumberFormat.simpleCurrency(locale: 'pt_br', name: '');
@@ -64,7 +72,7 @@ extension DiaMesAnoString on DateTime {
 
 extension DiasMesAnoDB on DateTime {
   String DiaMesAnoDB() {
-    final format = DateFormat('dd/MM/yyyy', 'pt_br');
+    final format = DateFormat('dd.MM.yyyy', 'pt_br');
     return format.format(this);
   }
 }

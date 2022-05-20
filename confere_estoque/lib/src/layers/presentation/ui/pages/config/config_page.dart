@@ -4,6 +4,7 @@ import 'package:confere_estoque/src/layers/presentation/ui/pages/login/login_pag
 import 'package:confere_estoque/src/layers/presentation/ui/pages/login/widgets/my_input_widget.dart';
 import 'package:confere_estoque/src/layers/services/shared_service.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
+import 'package:confere_estoque/src/utils/my_snackbar.dart';
 import 'package:easy_mask/easy_mask.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -107,11 +108,9 @@ class _ConfigPageState extends State<ConfigPage> {
                             '${ipController.text.trim()}:${portaController.text.trim()}') &&
                     await controllerIp.setPortServer(
                         port: portaController.text.trim())) {
-                  const snackBar = SnackBar(
-                    content: Text('IP do servidor salvo com sucesso'),
+                  MySnackBar(
+                    message: 'IP do servidor salvo com sucesso',
                   );
-
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
                   await Future.delayed(const Duration(milliseconds: 300));
 

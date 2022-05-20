@@ -6,11 +6,14 @@ import 'package:confere_estoque/app_widget.dart';
 import 'package:confere_estoque/src/core/inject.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      await initializeDateFormatting();
 
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(

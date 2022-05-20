@@ -8,6 +8,7 @@ import 'package:confere_estoque/src/layers/presentation/blocs/login_bloc/states/
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/home_page.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
+import 'package:confere_estoque/src/utils/my_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -59,12 +60,9 @@ class _ButtonLoginWidgetState extends State<ButtonLoginWidget> {
           (route) => false,
         );
       } else if (state is LoginErrorState) {
-        const snackBar = SnackBar(
-          content:
-              Text('Opss... Não foi possivel fazer o login. Tente novamente.'),
+        MySnackBar(
+          message: 'Opss... Não foi possivel fazer o login. Tente novamente.',
         );
-
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     });
   }

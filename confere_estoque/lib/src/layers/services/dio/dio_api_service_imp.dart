@@ -1,6 +1,7 @@
 import 'package:confere_estoque/src/layers/services/api_service.dart';
 import 'package:confere_estoque/src/layers/services/helpers/params.dart';
 import 'package:confere_estoque/src/layers/services/shared_service.dart';
+import 'package:confere_estoque/src/utils/formatters.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
@@ -74,16 +75,20 @@ class DioApiServiceImp implements ApiService {
   }
 
   @override
-  Future<bool> updateEstoque(EstoqueParams params) async {
+  Future<bool> insertEstoque(EstoqueParams params) async {
     final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
     final cnpj = GetIt.I.get<SharedService>().readCNPJ();
-    final result = await dio.put(
-      '$ipServer/estoque/${params.codigo}',
+    final result = await dio.post(
+      '$ipServer/conferencia_estoque/${params.codigo}',
       data: {
-        'MERCADORIA': params.codigo,
         'CCUSTO': params.ccusto,
-        params.tipoEstoque == 'C' ? 'EST_ATUAL' : 'EST_FISICO':
-            params.quantidade,
+        'MERCADORIA': params.codigo,
+        'DATA': DateTime.now().toIso8601String(),
+        'QTD_NOVO': params.qtdAntes.estoque() + params.quantidade.estoque(),
+        'QTD_ANTES': params.qtdAntes,
+        'QTD_AJUSTADO': params.quantidade,
+        'AJUSTADO': 'N',
+        'CONTABIL_FISICO': params.tipoEstoque == 'C' ? 'C' : 'F',
       },
       options: Options(
         headers: {

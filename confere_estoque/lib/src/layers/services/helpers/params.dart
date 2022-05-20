@@ -37,11 +37,13 @@ class EstoqueParams {
   final int ccusto;
   final String quantidade;
   final String tipoEstoque;
+  final String qtdAntes;
 
   EstoqueParams({
     required this.codigo,
     required this.ccusto,
     required this.quantidade,
+    required this.qtdAntes,
     required this.tipoEstoque,
   });
 }

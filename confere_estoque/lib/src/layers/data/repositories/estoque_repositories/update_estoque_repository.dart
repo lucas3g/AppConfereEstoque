@@ -12,12 +12,14 @@ class UpdateEstoqueRepositoryImp implements UpdateEstoqueRepository {
     required String codigo,
     required int ccusto,
     required String quantidade,
+    required String qtdAntes,
     required String tipoEstoque,
   }) async {
     return await updateEstoqueDataSource(
       codigo: codigo,
       ccusto: ccusto,
       quantidade: quantidade,
+      qtdAntes: qtdAntes,
       tipoEstoque: tipoEstoque,
     );
   }

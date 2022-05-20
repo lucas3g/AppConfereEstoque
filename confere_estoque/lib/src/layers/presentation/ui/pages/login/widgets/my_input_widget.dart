@@ -1,3 +1,4 @@
+import 'package:brasil_fields/brasil_fields.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -58,6 +59,9 @@ class _MyInputWidgetState extends State<MyInputWidget> {
         validator: (value) {
           if (value == null || value.isEmpty) {
             return widget.campoVazio;
+          }
+          if (widget.label == 'CNPJ' && !CNPJValidator.isValid(value)) {
+            return 'CNPJ Inválido';
           }
           return null;
         },

@@ -22,6 +22,7 @@ class EstoqueBloc extends Bloc<EstoqueEvents, EstoqueStates> {
       codigo: event.codigo,
       ccusto: event.ccusto,
       quantidade: event.quantidade,
+      qtdAntes: event.qtdAntes,
       tipoEstoque: event.tipoEstoque,
     );
 

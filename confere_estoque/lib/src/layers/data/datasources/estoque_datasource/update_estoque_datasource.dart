@@ -5,6 +5,7 @@ abstract class UpdateEstoqueDataSource {
     required String codigo,
     required int ccusto,
     required String quantidade,
+    required String qtdAntes,
     required String tipoEstoque,
   });
 }

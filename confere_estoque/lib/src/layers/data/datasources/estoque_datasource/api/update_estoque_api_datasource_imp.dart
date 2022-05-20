@@ -15,6 +15,7 @@ class UpdateEstoqueApiDataSourceImp implements UpdateEstoqueDataSource {
     required String codigo,
     required int ccusto,
     required String quantidade,
+    required String qtdAntes,
     required String tipoEstoque,
   }) async {
     try {
@@ -22,10 +23,11 @@ class UpdateEstoqueApiDataSourceImp implements UpdateEstoqueDataSource {
         codigo: codigo,
         ccusto: ccusto,
         quantidade: quantidade,
+        qtdAntes: qtdAntes,
         tipoEstoque: tipoEstoque,
       );
 
-      final response = await _apiService.updateEstoque(params);
+      final response = await _apiService.insertEstoque(params);
 
       if (response) {
         return const Right(true);

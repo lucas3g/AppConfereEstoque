@@ -34,6 +34,10 @@ class _LoginPageState extends State<LoginPage> {
   GlobalKey<FormState> keyLogin = GlobalKey<FormState>();
   GlobalKey<FormState> keyCNPJ = GlobalKey<FormState>();
 
+  late String fcnpj = '';
+  late String fuser = '';
+  late String fsenha = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: context.screenWidth * .04),
         child: SingleChildScrollView(
           controller: scrollController,
           child: SizedBox(
@@ -107,13 +111,15 @@ class _LoginPageState extends State<LoginPage> {
                         login.requestFocus();
                         cnpjController.text = value!.trim();
                       },
-                      onChanged: (String? cpf) {},
+                      onChanged: (String? cnpj) {
+                        fcnpj = cnpj!;
+                      },
                       inputFormaters: [
                         FilteringTextInputFormatter.digitsOnly,
                         CnpjInputFormatter(),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: context.screenWidth * .03),
                     MyInputWidget(
                       onTap: () {
                         scrollController.animateTo(
@@ -133,10 +139,12 @@ class _LoginPageState extends State<LoginPage> {
                         password.requestFocus();
                         loginController.text = value!.trim();
                       },
-                      onChanged: (String? user) {},
+                      onChanged: (String? user) {
+                        fuser = user!;
+                      },
                       inputFormaters: [UpperCaseTextFormatter()],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: context.screenWidth * .03),
                     MyInputWidget(
                       onTap: () {
                         scrollController.animateTo(
@@ -183,17 +191,20 @@ class _LoginPageState extends State<LoginPage> {
                               password: passwordController.text.trim(),
                             ));
                       },
-                      onChanged: (String? password) {},
+                      onChanged: (String? password) {
+                        fsenha = password!;
+                        setState(() {});
+                      },
                       inputFormaters: [UpperCaseTextFormatter()],
                     ),
-                    const SizedBox(height: 15),
+                    SizedBox(height: context.screenWidth * .03),
                     ButtonLoginWidget(
                       keyCNPJ: keyCNPJ,
                       keyLogin: keyLogin,
                       keyPassword: keyPassword,
-                      cnpj: cnpjController.text.trim(),
-                      login: loginController.text.trim(),
-                      password: passwordController.text.trim(),
+                      cnpj: fcnpj.trim(),
+                      login: fuser.trim(),
+                      password: fsenha.trim(),
                     ),
                   ],
                 ),

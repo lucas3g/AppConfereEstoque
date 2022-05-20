@@ -5,5 +5,5 @@ abstract class ApiService {
   Future<List<Map<String, dynamic>>> getProduct(ProductParams params);
   Future<List<Map<String, dynamic>>> getEstoque(ProductEstoque params);
   Future<List<Map<String, dynamic>>> getAllCCustos();
-  Future<bool> updateEstoque(EstoqueParams params);
+  Future<bool> insertEstoque(EstoqueParams params);
 }

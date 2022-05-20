@@ -19,6 +19,7 @@ import 'package:confere_estoque/src/layers/services/helpers/params.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
 import 'package:confere_estoque/src/utils/formatters.dart';
+import 'package:confere_estoque/src/utils/my_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,22 +61,18 @@ class _HomePageState extends State<HomePage> {
 
     subEstoque = blocEstoque.stream.listen((state) {
       if (state is EstoqueSuccessState) {
-        const snackBar = SnackBar(
-          content: Text('Successo. Estoque atualizado.'),
+        MySnackBar(
+          message: 'Successo. Estoque inserido.',
         );
-
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         codigoController.clear();
         descController.clear();
         qtdController.text = '0.00';
       }
       if (state is EstoqueErrorState) {
-        late SnackBar snackBar = SnackBar(
-          content: Text(
-              'Opss... Erro ao tentar atualizar o estoque. \n ${state.message}'),
+        MySnackBar(
+          message:
+              'Opss... Erro ao tentar atualizar o estoque. \n ${state.message}',
         );
-
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     });
 
@@ -171,263 +168,248 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBarWidget(context: context),
       body: Padding(
-        padding:
-            const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 10),
+        padding: EdgeInsets.only(
+            left: context.screenWidth * .03,
+            right: context.screenWidth * .03,
+            top: context.screenHeight * .02,
+            bottom: context.screenHeight * .01),
         child: SingleChildScrollView(
           child: SizedBox(
             height: context.screenHeight * .79,
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Form(
-                          key: keyCod,
-                          child: TextFormField(
-                            onTap: descController.clear,
-                            // validator: (value) {
-                            //   if (descController.text.trim().isEmpty &&
-                            //       (value == null || value.isEmpty)) {
-                            //     return 'Código não pode ser vazio.';
-                            //   }
-                            //   return null;
-                            // },
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                            controller: codigoController,
-                            focusNode: codigo,
-                            onEditingComplete: () {
-                              FocusScope.of(context).requestFocus(FocusNode());
-                            },
-                            decoration: InputDecoration(
-                              label: const Text('Cód. Produto'),
-                              hintText: 'Digite o código do produto',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        height: 60,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            elevation: 2,
-                            alignment: Alignment.center,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          onPressed: () async {
-                            codigoController.text =
-                                await FlutterBarcodeScanner.scanBarcode(
-                                    '#ffcf1f36',
-                                    'Fechar',
-                                    false,
-                                    ScanMode.BARCODE);
-
-                            if (codigoController.text.trim() != '-1') {
-                              blocProduct.add(
-                                ProductGetEvent(
-                                  codigo: codigoController.text.trim(),
-                                  descricao: '',
-                                  ccusto: blocCCusto.ccusto,
-                                ),
-                              );
-
-                              qtd.requestFocus();
-                            } else {
-                              codigoController.clear();
-                            }
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Lottie.asset(
-                                'assets/images/barcode.json',
-                                repeat: false,
-                                width: 50,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Form(
-                  key: keyDesc,
-                  child: TextFormField(
-                    onTap: codigoController.clear,
-
-                    // validator: (value) {
-                    //   if (codigoController.text.trim().isEmpty &&
-                    //       (value == null || value.isEmpty)) {
-                    //     return 'Descrição não pode ser vazio.';
-                    //   }
-                    //   return null;
-                    // },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    controller: descController,
-                    focusNode: desc,
-                    onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                    },
-                    decoration: InputDecoration(
-                      label: const Text('Descrição Produto'),
-                      hintText: 'Digite a descrição do produto',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    inputFormatters: [UpperCaseTextFormatter()],
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Row(
+                Column(
                   children: [
-                    Expanded(
-                      child: BlocBuilder<ProductBloc, ProductStates>(
-                          bloc: blocProduct,
-                          builder: (context, state) {
-                            return ElevatedButton(
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Form(
+                              key: keyCod,
+                              child: TextFormField(
+                                onTap: descController.clear,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                controller: codigoController,
+                                focusNode: codigo,
+                                onEditingComplete: () {
+                                  FocusScope.of(context)
+                                      .requestFocus(FocusNode());
+                                },
+                                decoration: InputDecoration(
+                                  label: const Text('Cód. Produto'),
+                                  hintText: 'Digite o código do produto',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            height: context.screenHeight * .07,
+                            child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(0, 50),
+                                elevation: 2,
+                                alignment: Alignment.center,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              onPressed: state is! ProductLoadingState
-                                  ? () {
-                                      if (codigoController.text
-                                              .trim()
-                                              .isEmpty &&
-                                          descController.text.trim().isEmpty) {
-                                        const snackBar = SnackBar(
-                                          content: Text(
-                                              'Código e Descrição estão em branco.'),
-                                        );
+                              onPressed: () async {
+                                codigoController.text =
+                                    await FlutterBarcodeScanner.scanBarcode(
+                                        '#ffcf1f36',
+                                        'Fechar',
+                                        false,
+                                        ScanMode.BARCODE);
 
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(snackBar);
-                                        return;
-                                      }
+                                if (codigoController.text.trim() != '-1') {
+                                  blocProduct.add(
+                                    ProductGetEvent(
+                                      codigo: codigoController.text.trim(),
+                                      descricao: '',
+                                      ccusto: blocCCusto.ccusto,
+                                    ),
+                                  );
 
-                                      if (descController.text.trim().length <
-                                          3) {
-                                        const snackBar = SnackBar(
-                                          content: Text(
-                                              'Descrição deve conter pelo menos 3 caracteres.'),
-                                        );
-
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(snackBar);
-                                        return;
-                                      }
-
-                                      FocusScope.of(context)
-                                          .requestFocus(FocusNode());
-
-                                      if (productEntitySelected.isNotEmpty) {
-                                        productEntitySelected.clear();
-                                        productEntitySelected = [];
-                                      }
-
-                                      blocProduct.add(
-                                        ProductGetEvent(
-                                          codigo: codigoController.text.trim(),
-                                          descricao: descController.text.trim(),
-                                          ccusto: blocCCusto.ccusto,
-                                        ),
-                                      );
-                                    }
-                                  : null,
+                                  qtd.requestFocus();
+                                } else {
+                                  codigoController.clear();
+                                }
+                              },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.search_rounded),
-                                  SizedBox(
-                                    width: 10,
+                                children: [
+                                  Lottie.asset(
+                                    'assets/images/barcode.json',
+                                    repeat: false,
+                                    width: 50,
                                   ),
-                                  Text('Buscar dados'),
                                 ],
                               ),
-                            );
-                          }),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                Form(
-                  key: keyQtd,
-                  child: TextFormField(
-                    controller: qtdController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Quantidade não pode ser vazia.';
-                      }
-                      if (value.contains('-')) {
-                        return 'Quantidade não pode ser negativo.';
-                      }
-                      if (value == '0,00') {
-                        return 'Quantidade não pode ser zero(0).';
-                      }
-                      return null;
-                    },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    focusNode: qtd,
-                    decoration: InputDecoration(
-                      label: const Text('Quantidade'),
-                      hintText: 'Digite uma quantidade',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                const RadioGroupCFWidget(),
-                const SizedBox(height: 5),
-                SizedBox(
-                  child: BlocBuilder<ProductBloc, ProductStates>(
-                      bloc: blocProduct,
-                      builder: (context, state) {
-                        return Stack(
-                          alignment: state is ProductLoadingState ||
-                                  state is ProductErrorState
-                              ? Alignment.center
-                              : Alignment.topCenter,
-                          children: [
-                            Visibility(
-                              visible: state is ProductLoadingState,
-                              child: AnimatedOpacity(
+                    SizedBox(height: context.screenHeight * .015),
+                    Form(
+                      key: keyDesc,
+                      child: TextFormField(
+                        onTap: codigoController.clear,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        controller: descController,
+                        focusNode: desc,
+                        onEditingComplete: () {
+                          FocusScope.of(context).requestFocus(FocusNode());
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Descrição Produto'),
+                          hintText: 'Digite a descrição do produto',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        inputFormatters: [UpperCaseTextFormatter()],
+                      ),
+                    ),
+                    SizedBox(height: context.screenHeight * .015),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: BlocBuilder<ProductBloc, ProductStates>(
+                              bloc: blocProduct,
+                              builder: (context, state) {
+                                return ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    fixedSize:
+                                        Size(0, context.screenHeight * .055),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                  onPressed: state is! ProductLoadingState
+                                      ? () {
+                                          if (codigoController.text
+                                                  .trim()
+                                                  .isEmpty &&
+                                              descController.text
+                                                  .trim()
+                                                  .isEmpty) {
+                                            MySnackBar(
+                                              message:
+                                                  'Informe um Código ou uma Descrição para buscar os dados.',
+                                            );
+                                            return;
+                                          }
+
+                                          if (descController.text
+                                                  .trim()
+                                                  .isNotEmpty &&
+                                              descController.text
+                                                      .trim()
+                                                      .length <
+                                                  3) {
+                                            MySnackBar(
+                                              message:
+                                                  'Descrição deve conter pelo menos 3 caracteres.',
+                                            );
+                                            return;
+                                          }
+
+                                          FocusScope.of(context)
+                                              .requestFocus(FocusNode());
+
+                                          if (productEntitySelected
+                                              .isNotEmpty) {
+                                            productEntitySelected.clear();
+                                            productEntitySelected = [];
+                                          }
+
+                                          blocProduct.add(
+                                            ProductGetEvent(
+                                              codigo:
+                                                  codigoController.text.trim(),
+                                              descricao:
+                                                  descController.text.trim(),
+                                              ccusto: blocCCusto.ccusto,
+                                            ),
+                                          );
+                                        }
+                                      : null,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.search_rounded),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text('Buscar dados'),
+                                    ],
+                                  ),
+                                );
+                              }),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: context.screenHeight * .015),
+                    Form(
+                      key: keyQtd,
+                      child: TextFormField(
+                        controller: qtdController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Quantidade não pode ser vazia.';
+                          }
+                          if (value.contains('-')) {
+                            return 'Quantidade não pode ser negativo.';
+                          }
+                          if (value == '0,00') {
+                            return 'Quantidade não pode ser zero(0).';
+                          }
+                          return null;
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        focusNode: qtd,
+                        decoration: InputDecoration(
+                          label: const Text('Quantidade'),
+                          hintText: 'Digite uma quantidade',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    SizedBox(height: context.screenHeight * .005),
+                    const RadioGroupCFWidget(),
+                    SizedBox(height: context.screenHeight * .005),
+                    BlocBuilder<ProductBloc, ProductStates>(
+                        bloc: blocProduct,
+                        builder: (context, state) {
+                          return Stack(
+                            alignment: state is ProductLoadingState ||
+                                    state is ProductErrorState
+                                ? Alignment.center
+                                : Alignment.topCenter,
+                            children: [
+                              AnimatedOpacity(
                                 opacity: state is ProductLoadingState ? 1 : 0,
-                                duration: Duration(
-                                    milliseconds:
-                                        state is ProductSuccessState ? 0 : 500),
+                                duration: const Duration(milliseconds: 0),
                                 child: SpinKitWave(
                                   color: AppTheme.colors.primary,
                                   size: 50.0,
                                 ),
                               ),
-                            ),
-                            Visibility(
-                              visible: state is ProductSuccessState &&
-                                  productEntitySelected.isNotEmpty &&
-                                  productEntitySelected[0].DESCRICAO !=
-                                      'DESCRICAO',
-                              child: AnimatedOpacity(
+                              AnimatedOpacity(
                                 opacity: state is ProductSuccessState ? 1 : 0,
                                 duration: Duration(
                                     milliseconds:
-                                        state is ProductSuccessState ? 500 : 0),
+                                        state is ProductSuccessState ? 600 : 0),
                                 child: ProductResultWidget(
                                   productEntity: state is ProductSuccessState &&
                                           productEntitySelected.isNotEmpty
@@ -448,10 +430,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                 ),
                               ),
-                            ),
-                            Visibility(
-                              visible: state is ProductErrorState,
-                              child: AnimatedOpacity(
+                              AnimatedOpacity(
                                 opacity: state is ProductErrorState ? 1 : 0,
                                 duration: const Duration(milliseconds: 500),
                                 child: state is ProductErrorState
@@ -474,16 +453,16 @@ class _HomePageState extends State<HomePage> {
                                       )
                                     : const Text(''),
                               ),
-                            ),
-                          ],
-                        );
-                      }),
+                            ],
+                          );
+                        }),
+                  ],
                 ),
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: SizedBox(
-                    height: 50,
+                    height: context.screenHeight * .055,
                     child: BlocBuilder<EstoqueBloc, EstoqueStates>(
                         bloc: blocEstoque,
                         builder: (context, stateEstoque) {
@@ -511,19 +490,20 @@ class _HomePageState extends State<HomePage> {
                                                         is ProductErrorState ||
                                                     (productEntitySelected[0]
                                                             .ID ==
-                                                        'ID') ||
-                                                    qtdController.text.trim() ==
-                                                        '0,00') ||
-                                                productEntitySelected[0].ID !=
-                                                    codigoController.text
-                                                        .trim()) {
-                                              const snackBar = SnackBar(
-                                                content: Text(
-                                                    'Não é possível atualizar o estoque. Verifique a mercadoria.'),
+                                                        'ID'))) {
+                                              MySnackBar(
+                                                message:
+                                                    'Não é possível atualizar o estoque. Verifique a mercadoria.',
                                               );
+                                              return;
+                                            }
 
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(snackBar);
+                                            if (qtdController.text.trim() ==
+                                                '0,00') {
+                                              MySnackBar(
+                                                message:
+                                                    'Quantidade não pode ser zero(0).',
+                                              );
                                               return;
                                             }
 
@@ -534,6 +514,17 @@ class _HomePageState extends State<HomePage> {
                                                 ccusto: blocCCusto.ccusto,
                                                 quantidade: qtdController.text
                                                     .replaceAll('.', ''),
+                                                qtdAntes: blocEstoque
+                                                            .estoques.name ==
+                                                        'contabil'
+                                                    ? productEntitySelected[0]
+                                                        .EST_ATUAL!
+                                                        .toString()
+                                                        .replaceAll('.', '')
+                                                    : productEntitySelected[0]
+                                                        .EST_FISICO!
+                                                        .toString()
+                                                        .replaceAll('.', ''),
                                                 tipoEstoque:
                                                     blocEstoque.estoques.name ==
                                                             'contabil'

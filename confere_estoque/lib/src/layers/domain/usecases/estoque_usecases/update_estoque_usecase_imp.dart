@@ -12,12 +12,14 @@ class UpdateEstoqueUseCaseImp implements UpdateEstoqueUseCase {
     required String codigo,
     required int ccusto,
     required String quantidade,
+    required String qtdAntes,
     required String tipoEstoque,
   }) async {
     return await updateEstoqueRepository(
       codigo: codigo,
       ccusto: ccusto,
       quantidade: quantidade,
+      qtdAntes: qtdAntes,
       tipoEstoque: tipoEstoque,
     );
   }
