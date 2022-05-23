@@ -32,23 +32,35 @@ class ProductResultWidget extends StatelessWidget {
               ),
             ],
           ),
-          if (productEntity.DESCRICAO != 'Produto não encontrado') ...[
-            Text('Custo Real: ${productEntity.CUSTO_ULTIMO.reais()}'),
-            Text('Valor Venda: ${productEntity.VENDA.reais()}'),
-            const SizedBox(height: 10),
+          const SizedBox(height: 5),
+          if (productEntity.DESCRICAO != 'Produto não encontrado' &&
+              productEntity.DESCRICAO != 'DESCRICAO')
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Estoque',
-                  style: AppTheme.textStyles.titleEstoque,
+                  'Estoque contado hoje: ',
+                  style: AppTheme.textStyles.textoSairApp,
                 ),
+                Text(productEntity.EST_CONTADO!.Litros()),
               ],
             ),
-            const SizedBox(height: 10),
-            Text('Estoque Contabil: ${productEntity.EST_ATUAL!.Litros()}'),
-            Text('Estoque Fisico:${productEntity.EST_FISICO!.Litros()}'),
-          ]
+          // if (productEntity.DESCRICAO != 'Produto não encontrado') ...[
+          //   Text('Custo Real: ${productEntity.CUSTO_ULTIMO.reais()}'),
+          //   Text('Valor Venda: ${productEntity.VENDA.reais()}'),
+          //   const SizedBox(height: 10),
+          //   Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       Text(
+          //         'Estoque',
+          //         style: AppTheme.textStyles.titleEstoque,
+          //       ),
+          //     ],
+          //   ),
+          //   const SizedBox(height: 10),
+          //   Text('Estoque Contabil: ${productEntity.EST_ATUAL!.Litros()}'),
+          //   Text('Estoque Fisico:${productEntity.EST_FISICO!.Litros()}'),
+          // ]
         ],
       ),
     );

@@ -3,8 +3,8 @@ abstract class EstoqueEvents {}
 class UpdateEstoqueEvent extends EstoqueEvents {
   final String codigo;
   final int ccusto;
-  final String quantidade;
-  final String qtdAntes;
+  final double quantidade;
+  final double qtdAntes;
   final String tipoEstoque;
 
   UpdateEstoqueEvent({

@@ -14,8 +14,8 @@ class UpdateEstoqueApiDataSourceImp implements UpdateEstoqueDataSource {
   Future<Either<Exception, bool>> call({
     required String codigo,
     required int ccusto,
-    required String quantidade,
-    required String qtdAntes,
+    required double quantidade,
+    required double qtdAntes,
     required String tipoEstoque,
   }) async {
     try {

@@ -25,11 +25,6 @@ class ProductGetApiDataSourceImp implements ProductGetDataSource {
         ccusto: ccusto,
       );
 
-      final ProductEstoque paramsEstoque = ProductEstoque(
-        codigo: codigo,
-        ccusto: ccusto,
-      );
-
       final response = await _apiService.getProduct(params);
 
       if (response[0]['DESCRICAO'] == 'Produto não encontrado') {
@@ -37,15 +32,20 @@ class ProductGetApiDataSourceImp implements ProductGetDataSource {
       }
 
       if (response.isNotEmpty && response.length == 1) {
-        final responseEstoque = await _apiService.getEstoque(paramsEstoque);
-
         late List<ProductEntity> productEntity =
             response.map(ProductDto.fromMap).toList();
 
-        productEntity[0].EST_ATUAL =
-            responseEstoque[0]['EST_ATUAL'].toDouble() ?? 0.0;
-        productEntity[0].EST_FISICO =
-            responseEstoque[0]['EST_FISICO'].toDouble() ?? 0.0;
+        final ProductEstoque paramsEstoque = ProductEstoque(
+          codigo: productEntity[0].ID,
+          ccusto: ccusto,
+        );
+
+        final responseEstoque = await _apiService.getEstoque(paramsEstoque);
+
+        productEntity[0].EST_ATUAL = 0.0;
+        productEntity[0].EST_FISICO = 0.0;
+        productEntity[0].EST_CONTADO =
+            responseEstoque[0]['QTD_NOVO'].toDouble() ?? 0.0;
 
         return Right(productEntity);
       }
@@ -56,6 +56,7 @@ class ProductGetApiDataSourceImp implements ProductGetDataSource {
 
         productEntity[0].EST_ATUAL = 0.0;
         productEntity[0].EST_FISICO = 0.0;
+        productEntity[0].EST_CONTADO = 0.0;
 
         return Right(productEntity);
       }

@@ -20,10 +20,10 @@ import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
 import 'package:confere_estoque/src/utils/formatters.dart';
 import 'package:confere_estoque/src/utils/my_snackbar.dart';
+import 'package:easy_mask/easy_mask.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   final _api = GetIt.I.get<ApiService>();
   final codigoController = TextEditingController();
   final descController = TextEditingController();
-  final qtdController = MoneyMaskedTextController();
+  final qtdController = TextEditingController();
   FocusNode codigo = FocusNode();
   FocusNode desc = FocusNode();
   FocusNode qtd = FocusNode();
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
         );
         codigoController.clear();
         descController.clear();
-        qtdController.text = '0.00';
+        qtdController.text = '';
       }
       if (state is EstoqueErrorState) {
         MySnackBar(
@@ -143,11 +143,10 @@ class _HomePageState extends State<HomePage> {
 
                           codigoController.text = produto.ID;
 
-                          productEntitySelected[0].EST_ATUAL =
-                              double.parse(prod[0]['EST_ATUAL'].toString())
-                                  .toDouble();
-                          productEntitySelected[0].EST_FISICO =
-                              double.parse(prod[0]['EST_FISICO'].toString())
+                          productEntitySelected[0].EST_ATUAL = 0.0;
+                          productEntitySelected[0].EST_FISICO = 0.0;
+                          productEntitySelected[0].EST_CONTADO =
+                              double.parse(prod[0]['QTD_NOVO'].toString())
                                   .toDouble();
 
                           setState(() {});
@@ -383,6 +382,12 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          TextInputMask(
+                            mask: " ! !9+.999,99",
+                            reverse: true,
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: context.screenHeight * .005),
@@ -513,18 +518,10 @@ class _HomePageState extends State<HomePage> {
                                                     productEntitySelected[0].ID,
                                                 ccusto: blocCCusto.ccusto,
                                                 quantidade: qtdController.text
-                                                    .replaceAll('.', ''),
-                                                qtdAntes: blocEstoque
-                                                            .estoques.name ==
-                                                        'contabil'
-                                                    ? productEntitySelected[0]
-                                                        .EST_ATUAL!
-                                                        .toString()
-                                                        .replaceAll('.', '')
-                                                    : productEntitySelected[0]
-                                                        .EST_FISICO!
-                                                        .toString()
-                                                        .replaceAll('.', ''),
+                                                    .estoque(),
+                                                qtdAntes:
+                                                    productEntitySelected[0]
+                                                        .EST_CONTADO!,
                                                 tipoEstoque:
                                                     blocEstoque.estoques.name ==
                                                             'contabil'

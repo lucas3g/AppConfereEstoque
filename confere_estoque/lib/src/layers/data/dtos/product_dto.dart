@@ -41,6 +41,8 @@ class ProductDto extends ProductEntity {
   double? EST_FISICO;
   @override
   double? EST_ATUAL;
+  @override
+  double? EST_CONTADO;
   ProductDto({
     required this.ID,
     required this.DESCRICAO,
@@ -60,6 +62,7 @@ class ProductDto extends ProductEntity {
     required this.DESCONTO_MAX,
     this.EST_FISICO = 0.0,
     this.EST_ATUAL = 0.0,
+    this.EST_CONTADO = 0.0,
   }) : super(
           ID: ID,
           DESCRICAO: DESCRICAO,
@@ -79,6 +82,7 @@ class ProductDto extends ProductEntity {
           DESCONTO_MAX: DESCONTO_MAX,
           EST_FISICO: EST_FISICO,
           EST_ATUAL: EST_ATUAL,
+          EST_CONTADO: EST_CONTADO,
         );
 
   ProductDto copyWith({
@@ -100,6 +104,7 @@ class ProductDto extends ProductEntity {
     double? DESCONTO_MAX,
     double? EST_FISICO,
     double? EST_ATUAL,
+    double? EST_CONTADO,
   }) {
     return ProductDto(
       ID: ID ?? this.ID,
@@ -120,6 +125,7 @@ class ProductDto extends ProductEntity {
       DESCONTO_MAX: DESCONTO_MAX ?? this.DESCONTO_MAX,
       EST_FISICO: EST_FISICO ?? this.EST_FISICO,
       EST_ATUAL: EST_ATUAL ?? this.EST_ATUAL,
+      EST_CONTADO: EST_CONTADO ?? this.EST_CONTADO,
     );
   }
 
@@ -143,6 +149,7 @@ class ProductDto extends ProductEntity {
       'DESCONTO_MAX': DESCONTO_MAX,
       'EST_FISICO': EST_FISICO,
       'EST_ATUAL': EST_ATUAL,
+      'EST_CONTADO': EST_CONTADO,
     };
   }
 

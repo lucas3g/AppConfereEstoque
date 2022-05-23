@@ -1,7 +1,6 @@
 import 'package:confere_estoque/src/layers/services/api_service.dart';
 import 'package:confere_estoque/src/layers/services/helpers/params.dart';
 import 'package:confere_estoque/src/layers/services/shared_service.dart';
-import 'package:confere_estoque/src/utils/formatters.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
@@ -84,7 +83,7 @@ class DioApiServiceImp implements ApiService {
         'CCUSTO': params.ccusto,
         'MERCADORIA': params.codigo,
         'DATA': DateTime.now().toIso8601String(),
-        'QTD_NOVO': params.qtdAntes.estoque() + params.quantidade.estoque(),
+        'QTD_NOVO': params.qtdAntes + params.quantidade,
         'QTD_ANTES': params.qtdAntes,
         'QTD_AJUSTADO': params.quantidade,
         'AJUSTADO': 'N',
@@ -110,21 +109,20 @@ class DioApiServiceImp implements ApiService {
     final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
     final cnpj = GetIt.I.get<SharedService>().readCNPJ();
     final result = await dio.get(
-      '$ipServer/estoque/${params.codigo}',
+      '$ipServer/conferencia_estoque/${params.codigo}',
       options: Options(
         headers: {
-          'id': params.codigo,
           'ccusto': params.ccusto,
           'cnpj': cnpj,
         },
       ),
     );
 
-    if (result.statusCode == 200) {
+    if (result.statusCode == 200 && result.data.isNotEmpty) {
       return List<Map<String, dynamic>>.from(result.data);
     } else {
       return List<Map<String, dynamic>>.from([
-        {'EST_ATUAL': 0, 'EST_FISICO': 0}
+        {'EST_ATUAL': 0, 'EST_FISICO': 0, 'QTD_NOVO': 0}
       ]);
     }
   }

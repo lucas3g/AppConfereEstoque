@@ -35,9 +35,9 @@ class ProductEstoque {
 class EstoqueParams {
   final String codigo;
   final int ccusto;
-  final String quantidade;
+  final double quantidade;
   final String tipoEstoque;
-  final String qtdAntes;
+  final double qtdAntes;
 
   EstoqueParams({
     required this.codigo,

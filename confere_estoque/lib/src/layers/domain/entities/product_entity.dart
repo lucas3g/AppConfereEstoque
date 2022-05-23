@@ -19,6 +19,7 @@ class ProductEntity {
   final double DESCONTO_MAX;
   double? EST_FISICO;
   double? EST_ATUAL;
+  double? EST_CONTADO;
 
   ProductEntity({
     required this.ID,
@@ -39,5 +40,6 @@ class ProductEntity {
     required this.DESCONTO_MAX,
     this.EST_FISICO,
     this.EST_ATUAL,
+    this.EST_CONTADO,
   });
 }
