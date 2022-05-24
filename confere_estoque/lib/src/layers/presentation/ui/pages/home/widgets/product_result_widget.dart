@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:confere_estoque/src/layers/domain/entities/product_entity.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
@@ -22,6 +23,25 @@ class ProductResultWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(
+                  child: SizedBox(
+                    width: context.screenWidth * .35,
+                    child: CachedNetworkImage(
+                        imageUrl:
+                            'https://cdn-cosmos.bluesoft.com.br/products/${productEntity.GTIN}',
+                        placeholder: (context, url) => SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: AppTheme.colors.primary,
+                                ),
+                              ),
+                            ),
+                        errorWidget: (context, url, error) => const SizedBox()),
+                  ),
+                ),
+                const SizedBox(height: 5),
                 Row(
                   children: [
                     Expanded(

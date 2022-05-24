@@ -72,8 +72,6 @@ class _HomePageState extends State<HomePage> {
         productEntitySelected[0].EST_CONTADO =
             double.parse(state.estoqueEntity.QTD_NOVO.toString()).toDouble();
 
-        codigoController.text = productEntitySelected[0].ID;
-
         setState(() {});
         Navigator.pop(context);
       }
@@ -99,6 +97,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     subEstoque.cancel();
     subProd.cancel();
+
     super.dispose();
   }
 
@@ -195,402 +194,372 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBarWidget(context: context),
       body: Padding(
         padding: EdgeInsets.only(
-            left: context.screenWidth * .03,
-            right: context.screenWidth * .03,
-            top: context.screenHeight * .02,
-            bottom: context.screenHeight * .01),
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height: context.screenHeight * .79,
+          left: context.screenWidth * .03,
+          right: context.screenWidth * .03,
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          height: context.screenHeight * .75,
+          child: SingleChildScrollView(
             child: Column(
               children: [
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Form(
-                              key: keyCod,
-                              child: TextFormField(
-                                onTap: descController.clear,
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                controller: codigoController,
-                                focusNode: codigo,
-                                onEditingComplete: () {
-                                  FocusScope.of(context)
-                                      .requestFocus(FocusNode());
-                                },
-                                decoration: InputDecoration(
-                                  label: const Text('Cód. Produto'),
-                                  hintText: 'Digite o código do produto',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Form(
+                          key: keyCod,
+                          child: TextFormField(
+                            onTap: descController.clear,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            controller: codigoController,
+                            focusNode: codigo,
+                            onEditingComplete: () {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                            },
+                            decoration: InputDecoration(
+                              label: const Text('Cód. Produto'),
+                              hintText: 'Digite o código do produto',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            height: context.screenHeight * .07,
-                            child: ElevatedButton(
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        height: context.screenHeight * .07,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 2,
+                            alignment: Alignment.center,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          onPressed: () async {
+                            codigoController.text =
+                                await FlutterBarcodeScanner.scanBarcode(
+                                    '#ffcf1f36',
+                                    'Fechar',
+                                    false,
+                                    ScanMode.BARCODE);
+
+                            if (codigoController.text.trim() != '-1') {
+                              blocProduct.add(
+                                ProductGetEvent(
+                                  codigo: codigoController.text.trim(),
+                                  descricao: '',
+                                  ccusto: blocCCusto.ccusto,
+                                ),
+                              );
+
+                              qtd.requestFocus();
+                            } else {
+                              codigoController.clear();
+                            }
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Lottie.asset(
+                                'assets/images/barcode.json',
+                                repeat: false,
+                                width: 50,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: context.screenHeight * .015),
+                Form(
+                  key: keyDesc,
+                  child: TextFormField(
+                    onTap: codigoController.clear,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    controller: descController,
+                    focusNode: desc,
+                    onEditingComplete: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    },
+                    decoration: InputDecoration(
+                      label: const Text('Descrição Produto'),
+                      hintText: 'Digite a descrição do produto',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    inputFormatters: [UpperCaseTextFormatter()],
+                  ),
+                ),
+                SizedBox(height: context.screenHeight * .015),
+                Row(
+                  children: [
+                    Expanded(
+                      child: BlocBuilder<ProductBloc, ProductStates>(
+                          bloc: blocProduct,
+                          builder: (context, state) {
+                            return ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                elevation: 2,
-                                alignment: Alignment.center,
+                                fixedSize: Size(0, context.screenHeight * .055),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              onPressed: () async {
-                                codigoController.text =
-                                    await FlutterBarcodeScanner.scanBarcode(
-                                        '#ffcf1f36',
-                                        'Fechar',
-                                        false,
-                                        ScanMode.BARCODE);
+                              onPressed: state is! ProductLoadingState
+                                  ? () {
+                                      if (codigoController.text
+                                              .trim()
+                                              .isEmpty &&
+                                          descController.text.trim().isEmpty) {
+                                        MySnackBar(
+                                          message:
+                                              'Informe um Código ou uma Descrição para buscar os dados.',
+                                        );
+                                        return;
+                                      }
 
-                                if (codigoController.text.trim() != '-1') {
-                                  blocProduct.add(
-                                    ProductGetEvent(
-                                      codigo: codigoController.text.trim(),
-                                      descricao: '',
-                                      ccusto: blocCCusto.ccusto,
-                                    ),
-                                  );
+                                      if (descController.text
+                                              .trim()
+                                              .isNotEmpty &&
+                                          descController.text.trim().length <
+                                              3) {
+                                        MySnackBar(
+                                          message:
+                                              'Descrição deve conter pelo menos 3 caracteres.',
+                                        );
+                                        return;
+                                      }
 
-                                  qtd.requestFocus();
-                                } else {
-                                  codigoController.clear();
-                                }
-                              },
+                                      FocusScope.of(context)
+                                          .requestFocus(FocusNode());
+
+                                      if (productEntitySelected.isNotEmpty) {
+                                        productEntitySelected.clear();
+                                        productEntitySelected = [];
+                                      }
+
+                                      blocProduct.add(
+                                        ProductGetEvent(
+                                          codigo: codigoController.text.trim(),
+                                          descricao: descController.text
+                                              .trim()
+                                              .removeAcentos(),
+                                          ccusto: blocCCusto.ccusto,
+                                        ),
+                                      );
+                                    }
+                                  : null,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Lottie.asset(
-                                    'assets/images/barcode.json',
-                                    repeat: false,
-                                    width: 50,
+                                children: const [
+                                  Icon(Icons.search_rounded),
+                                  SizedBox(
+                                    width: 10,
                                   ),
+                                  Text('Buscar dados'),
                                 ],
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
+                            );
+                          }),
                     ),
-                    SizedBox(height: context.screenHeight * .015),
-                    Form(
-                      key: keyDesc,
-                      child: TextFormField(
-                        onTap: codigoController.clear,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        controller: descController,
-                        focusNode: desc,
-                        onEditingComplete: () {
-                          FocusScope.of(context).requestFocus(FocusNode());
-                        },
-                        decoration: InputDecoration(
-                          label: const Text('Descrição Produto'),
-                          hintText: 'Digite a descrição do produto',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        inputFormatters: [UpperCaseTextFormatter()],
-                      ),
-                    ),
-                    SizedBox(height: context.screenHeight * .015),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: BlocBuilder<ProductBloc, ProductStates>(
-                              bloc: blocProduct,
-                              builder: (context, state) {
-                                return ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    fixedSize:
-                                        Size(0, context.screenHeight * .055),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                  ),
-                                  onPressed: state is! ProductLoadingState
-                                      ? () {
-                                          if (codigoController.text
-                                                  .trim()
-                                                  .isEmpty &&
-                                              descController.text
-                                                  .trim()
-                                                  .isEmpty) {
-                                            MySnackBar(
-                                              message:
-                                                  'Informe um Código ou uma Descrição para buscar os dados.',
-                                            );
-                                            return;
-                                          }
-
-                                          if (descController.text
-                                                  .trim()
-                                                  .isNotEmpty &&
-                                              descController.text
-                                                      .trim()
-                                                      .length <
-                                                  3) {
-                                            MySnackBar(
-                                              message:
-                                                  'Descrição deve conter pelo menos 3 caracteres.',
-                                            );
-                                            return;
-                                          }
-
-                                          FocusScope.of(context)
-                                              .requestFocus(FocusNode());
-
-                                          if (productEntitySelected
-                                              .isNotEmpty) {
-                                            productEntitySelected.clear();
-                                            productEntitySelected = [];
-                                          }
-
-                                          blocProduct.add(
-                                            ProductGetEvent(
-                                              codigo:
-                                                  codigoController.text.trim(),
-                                              descricao:
-                                                  descController.text.trim(),
-                                              ccusto: blocCCusto.ccusto,
-                                            ),
-                                          );
-                                        }
-                                      : null,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(Icons.search_rounded),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Text('Buscar dados'),
-                                    ],
-                                  ),
-                                );
-                              }),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: context.screenHeight * .015),
-                    Form(
-                      key: keyQtd,
-                      child: TextFormField(
-                        controller: qtdController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Quantidade não pode ser vazia.';
-                          }
-                          if (value.contains('-')) {
-                            return 'Quantidade não pode ser negativo.';
-                          }
-                          if (value == '0,00') {
-                            return 'Quantidade não pode ser zero(0).';
-                          }
-                          return null;
-                        },
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        focusNode: qtd,
-                        decoration: InputDecoration(
-                          label: const Text('Quantidade'),
-                          hintText: 'Digite uma quantidade',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          TextInputMask(
-                            mask: " ! !9+.999,99",
-                            reverse: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: context.screenHeight * .005),
-                    const RadioGroupCFWidget(),
-                    SizedBox(height: context.screenHeight * .005),
-                    BlocBuilder<ProductBloc, ProductStates>(
-                        bloc: blocProduct,
-                        builder: (context, state) {
-                          return Stack(
-                            alignment: state is ProductLoadingState ||
-                                    state is ProductErrorState
-                                ? Alignment.center
-                                : Alignment.topCenter,
-                            children: [
-                              AnimatedOpacity(
-                                opacity: state is ProductLoadingState ? 1 : 0,
-                                duration: const Duration(milliseconds: 0),
-                                child: SpinKitWave(
-                                  color: AppTheme.colors.primary,
-                                  size: 50.0,
-                                ),
-                              ),
-                              AnimatedOpacity(
-                                opacity: state is ProductSuccessState ? 1 : 0,
-                                duration: Duration(
-                                    milliseconds:
-                                        state is ProductSuccessState ? 600 : 0),
-                                child: ProductResultWidget(
-                                  productEntity: state is ProductSuccessState &&
-                                          productEntitySelected.isNotEmpty &&
-                                          productEntitySelected[0].DESCRICAO !=
-                                              'DESCRICAO'
-                                      ? productEntitySelected[0]
-                                      : ProductEntity(
-                                          ID: 'ID',
-                                          DESCRICAO: 'DESCRICAO',
-                                          SUCINTO: 'SUCINTO',
-                                          UNIDADE: 'UNIDADE',
-                                          SUBGRUPO: 'SUBGRUPO',
-                                          VENDA: 0,
-                                          SERVICO: 'SERVICO',
-                                          ATIVO: 'ATIVO',
-                                          CUSTO_ULTIMO: 0,
-                                          DESCONTO_MAX: 0,
-                                          EST_FISICO: 0,
-                                          EST_ATUAL: 0,
-                                        ),
-                                ),
-                              ),
-                              AnimatedOpacity(
-                                opacity: state is ProductErrorState ? 1 : 0,
-                                duration: const Duration(milliseconds: 500),
-                                child: state is ProductErrorState
-                                    ? Container(
-                                        alignment: Alignment.center,
-                                        padding: const EdgeInsets.all(20),
-                                        width: context.screenWidth,
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.colors.primary
-                                              .withAlpha(30),
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        child: Text(
-                                          state.message
-                                              .replaceAll('Exception:', ''),
-                                          style:
-                                              AppTheme.textStyles.titleEstoque,
-                                        ),
-                                      )
-                                    : const Text(''),
-                              ),
-                            ],
-                          );
-                        }),
                   ],
                 ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: SizedBox(
-                    height: context.screenHeight * .055,
-                    child: BlocBuilder<EstoqueBloc, EstoqueStates>(
-                        bloc: blocEstoque,
-                        builder: (context, stateEstoque) {
-                          return BlocBuilder<ProductBloc, ProductStates>(
-                              bloc: blocProduct,
-                              builder: (context, stateProduto) {
-                                return SizedBox(
-                                  width: context.screenWidth,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      elevation: 2,
-                                      alignment: Alignment.center,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                    ),
-                                    onPressed: stateEstoque
-                                                is! EstoqueLoadingState &&
-                                            stateProduto is ProductSuccessState
-                                        ? () {
-                                            if ((productEntitySelected[0]
-                                                        .DESCRICAO ==
-                                                    'Produto não encontrado') ||
-                                                (stateProduto
-                                                        is ProductErrorState ||
-                                                    (productEntitySelected[0]
-                                                            .ID ==
-                                                        'ID'))) {
-                                              MySnackBar(
-                                                message:
-                                                    'Não é possível atualizar o estoque. Verifique a mercadoria.',
-                                              );
-                                              return;
-                                            }
-
-                                            if (qtdController.text.trim() ==
-                                                '0,00') {
-                                              MySnackBar(
-                                                message:
-                                                    'Quantidade não pode ser zero(0).',
-                                              );
-                                              return;
-                                            }
-
-                                            blocEstoque.add(
-                                              UpdateEstoqueEvent(
-                                                codigo:
-                                                    productEntitySelected[0].ID,
-                                                ccusto: blocCCusto.ccusto,
-                                                quantidade: qtdController.text
-                                                    .estoque(),
-                                                qtdAntes:
-                                                    productEntitySelected[0]
-                                                        .EST_CONTADO!,
-                                                tipoEstoque:
-                                                    blocEstoque.estoques.name ==
-                                                            'contabil'
-                                                        ? 'C'
-                                                        : 'F',
-                                              ),
-                                            );
-                                          }
-                                        : null,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        stateEstoque is! EstoqueLoadingState
-                                            ? const Icon(
-                                                Icons.check_circle_rounded)
-                                            : const Text(''),
-                                        const SizedBox(width: 10),
-                                        stateEstoque is EstoqueLoadingState
-                                            ? const Center(
-                                                child: SizedBox(
-                                                  height: 20,
-                                                  width: 20,
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                ),
-                                              )
-                                            : const Text('Atualizar estoque'),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              });
-                        }),
+                SizedBox(height: context.screenHeight * .015),
+                Form(
+                  key: keyQtd,
+                  child: TextFormField(
+                    controller: qtdController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Quantidade não pode ser vazia.';
+                      }
+                      if (value.contains('-')) {
+                        return 'Quantidade não pode ser negativo.';
+                      }
+                      if (value == '0,00') {
+                        return 'Quantidade não pode ser zero(0).';
+                      }
+                      return null;
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    focusNode: qtd,
+                    decoration: InputDecoration(
+                      label: const Text('Quantidade'),
+                      hintText: 'Digite uma quantidade',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      TextInputMask(
+                        mask: " ! !9+.999,99",
+                        reverse: true,
+                      ),
+                    ],
                   ),
                 ),
+                SizedBox(height: context.screenHeight * .005),
+                const RadioGroupCFWidget(),
+                SizedBox(height: context.screenHeight * .005),
+                BlocBuilder<ProductBloc, ProductStates>(
+                    bloc: blocProduct,
+                    builder: (context, state) {
+                      return Stack(
+                        alignment: state is ProductLoadingState ||
+                                state is ProductErrorState
+                            ? Alignment.center
+                            : Alignment.topCenter,
+                        children: [
+                          AnimatedOpacity(
+                            opacity: state is ProductLoadingState ? 1 : 0,
+                            duration: const Duration(milliseconds: 0),
+                            child: SpinKitWave(
+                              color: AppTheme.colors.primary,
+                              size: 50.0,
+                            ),
+                          ),
+                          AnimatedOpacity(
+                            opacity: state is ProductSuccessState ? 1 : 0,
+                            duration: Duration(
+                                milliseconds:
+                                    state is ProductSuccessState ? 600 : 0),
+                            child: ProductResultWidget(
+                              productEntity: state is ProductSuccessState &&
+                                      productEntitySelected.isNotEmpty &&
+                                      productEntitySelected[0].DESCRICAO !=
+                                          'DESCRICAO'
+                                  ? productEntitySelected[0]
+                                  : ProductEntity(
+                                      ID: 'ID',
+                                      DESCRICAO: 'DESCRICAO',
+                                      SUCINTO: 'SUCINTO',
+                                      UNIDADE: 'UNIDADE',
+                                      SUBGRUPO: 'SUBGRUPO',
+                                      VENDA: 0,
+                                      SERVICO: 'SERVICO',
+                                      ATIVO: 'ATIVO',
+                                      CUSTO_ULTIMO: 0,
+                                      DESCONTO_MAX: 0,
+                                      EST_FISICO: 0,
+                                      EST_ATUAL: 0,
+                                    ),
+                            ),
+                          ),
+                          AnimatedOpacity(
+                            opacity: state is ProductErrorState ? 1 : 0,
+                            duration: const Duration(milliseconds: 500),
+                            child: state is ProductErrorState
+                                ? Container(
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.all(20),
+                                    width: context.screenWidth,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          AppTheme.colors.primary.withAlpha(30),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      state.message
+                                          .replaceAll('Exception:', ''),
+                                      style: AppTheme.textStyles.titleEstoque,
+                                    ),
+                                  )
+                                : const Text(''),
+                          ),
+                        ],
+                      );
+                    }),
               ],
             ),
           ),
         ),
+      ),
+      bottomSheet: SizedBox(
+        height: context.screenHeight * .065,
+        child: BlocBuilder<EstoqueBloc, EstoqueStates>(
+            bloc: blocEstoque,
+            builder: (context, stateEstoque) {
+              return BlocBuilder<ProductBloc, ProductStates>(
+                  bloc: blocProduct,
+                  builder: (context, stateProduto) {
+                    return SizedBox(
+                      width: context.screenWidth,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 2,
+                          alignment: Alignment.center,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(0),
+                          ),
+                        ),
+                        onPressed: stateEstoque is! EstoqueLoadingState &&
+                                stateProduto is ProductSuccessState
+                            ? () {
+                                if ((productEntitySelected[0].DESCRICAO ==
+                                        'Produto não encontrado') ||
+                                    (stateProduto is ProductErrorState ||
+                                        (productEntitySelected[0].ID ==
+                                            'ID'))) {
+                                  MySnackBar(
+                                    message:
+                                        'Não é possível atualizar o estoque. Verifique a mercadoria.',
+                                  );
+                                  return;
+                                }
+
+                                if (qtdController.text.trim() == '0,00') {
+                                  MySnackBar(
+                                    message: 'Quantidade não pode ser zero(0).',
+                                  );
+                                  return;
+                                }
+
+                                blocEstoque.add(
+                                  UpdateEstoqueEvent(
+                                    codigo: productEntitySelected[0].ID,
+                                    ccusto: blocCCusto.ccusto,
+                                    quantidade: qtdController.text.estoque(),
+                                    qtdAntes:
+                                        productEntitySelected[0].EST_CONTADO!,
+                                    tipoEstoque:
+                                        blocEstoque.estoques.name == 'contabil'
+                                            ? 'C'
+                                            : 'F',
+                                  ),
+                                );
+                              }
+                            : null,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            stateEstoque is! EstoqueLoadingState
+                                ? const Icon(Icons.check_circle_rounded)
+                                : const Text(''),
+                            const SizedBox(width: 10),
+                            stateEstoque is EstoqueLoadingState
+                                ? const Center(
+                                    child: SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                : const Text('Atualizar estoque'),
+                          ],
+                        ),
+                      ),
+                    );
+                  });
+            }),
       ),
     );
   }
