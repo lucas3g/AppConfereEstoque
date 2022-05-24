@@ -14,8 +14,6 @@ import 'package:confere_estoque/src/layers/presentation/blocs/product_bloc/state
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/app_bar_widget.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/product_result_widget.dart';
 import 'package:confere_estoque/src/layers/presentation/ui/pages/home/widgets/radiogroup_cf_widget.dart';
-import 'package:confere_estoque/src/layers/services/api_service.dart';
-import 'package:confere_estoque/src/layers/services/helpers/params.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/constants.dart';
 import 'package:confere_estoque/src/utils/formatters.dart';
@@ -39,7 +37,6 @@ class _HomePageState extends State<HomePage> {
   final blocProduct = GetIt.I.get<ProductBloc>();
   final blocCCusto = GetIt.I.get<CCustosBloc>();
   final blocEstoque = GetIt.I.get<EstoqueBloc>();
-  final _api = GetIt.I.get<ApiService>();
   final codigoController = TextEditingController();
   final descController = TextEditingController();
   final qtdController = TextEditingController();
@@ -68,6 +65,19 @@ class _HomePageState extends State<HomePage> {
         descController.clear();
         qtdController.text = '';
       }
+
+      if (state is EstoqueGetSuccessState) {
+        productEntitySelected[0].EST_ATUAL = 0.0;
+        productEntitySelected[0].EST_FISICO = 0.0;
+        productEntitySelected[0].EST_CONTADO =
+            double.parse(state.estoqueEntity.QTD_NOVO.toString()).toDouble();
+
+        codigoController.text = productEntitySelected[0].ID;
+
+        setState(() {});
+        Navigator.pop(context);
+      }
+
       if (state is EstoqueErrorState) {
         MySnackBar(
           message:
@@ -93,6 +103,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> abreModal({required List<ProductEntity> products}) async {
+    late String codProd = '';
     await showDialog(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -108,53 +119,69 @@ class _HomePageState extends State<HomePage> {
               ),
               const Divider(),
               ...products
-                  .map((produto) => ListTile(
-                        leading: CachedNetworkImage(
-                          alignment: Alignment.centerLeft,
-                          imageUrl:
-                              'https://cdn-cosmos.bluesoft.com.br/products/${produto.GTIN}',
-                          placeholder: (context, url) => Container(
-                            alignment: Alignment.centerLeft,
-                            width: 60,
-                            height: 60,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppTheme.colors.primary,
+                  .map(
+                    (produto) => BlocBuilder<EstoqueBloc, EstoqueStates>(
+                      bloc: blocEstoque,
+                      builder: (context, state) {
+                        return ListTile(
+                          trailing: state is EstoqueGetLoadingState &&
+                                  codProd == produto.ID
+                              ? const SizedBox(
+                                  width: 30,
+                                  height: 30,
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              : null,
+                          leading: SizedBox(
+                            width: 50,
+                            child: CachedNetworkImage(
+                              imageUrl:
+                                  'https://cdn-cosmos.bluesoft.com.br/products/${produto.GTIN}',
+                              placeholder: (context, url) => SizedBox(
+                                width: 60,
+                                height: 60,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppTheme.colors.primary,
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.error,
+                                      color: Colors.red, size: 30),
+                                ],
                               ),
                             ),
                           ),
-                          errorWidget: (context, url, error) => Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.error, color: Colors.red, size: 30),
-                            ],
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(produto.DESCRICAO),
-                        onTap: () async {
-                          productEntitySelected.add(produto);
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(produto.DESCRICAO),
+                          subtitle: state is EstoqueGetLoadingState &&
+                                  codProd == produto.ID
+                              ? const Text('Buscando estoque. Aguarde...')
+                              : null,
+                          onTap: () async {
+                            codProd = produto.ID;
+                            productEntitySelected.add(produto);
 
-                          ProductEstoque params = ProductEstoque(
-                              ccusto: blocCCusto.ccusto, codigo: produto.ID);
+                            blocEstoque.add(
+                              GetEstoqueEvent(
+                                codigo: produto.ID,
+                                ccusto: blocCCusto.ccusto,
+                              ),
+                            );
 
-                          final prod = await _api.getEstoque(params);
-
-                          codigoController.text = produto.ID;
-
-                          productEntitySelected[0].EST_ATUAL = 0.0;
-                          productEntitySelected[0].EST_FISICO = 0.0;
-                          productEntitySelected[0].EST_CONTADO =
-                              double.parse(prod[0]['QTD_NOVO'].toString())
-                                  .toDouble();
-
-                          setState(() {});
-
-                          Navigator.pop(context, produto);
-                        },
-                      ))
-                  .toList()
+                            setState(() {});
+                          },
+                        );
+                      },
+                    ),
+                  )
+                  .toList(),
             ],
           ),
         );
@@ -417,7 +444,9 @@ class _HomePageState extends State<HomePage> {
                                         state is ProductSuccessState ? 600 : 0),
                                 child: ProductResultWidget(
                                   productEntity: state is ProductSuccessState &&
-                                          productEntitySelected.isNotEmpty
+                                          productEntitySelected.isNotEmpty &&
+                                          productEntitySelected[0].DESCRICAO !=
+                                              'DESCRICAO'
                                       ? productEntitySelected[0]
                                       : ProductEntity(
                                           ID: 'ID',

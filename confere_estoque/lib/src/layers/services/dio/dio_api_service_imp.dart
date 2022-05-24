@@ -77,6 +77,7 @@ class DioApiServiceImp implements ApiService {
   Future<bool> insertEstoque(EstoqueParams params) async {
     final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
     final cnpj = GetIt.I.get<SharedService>().readCNPJ();
+
     final result = await dio.post(
       '$ipServer/conferencia_estoque/${params.codigo}',
       data: {
@@ -85,7 +86,7 @@ class DioApiServiceImp implements ApiService {
         'DATA': DateTime.now().toIso8601String(),
         'QTD_NOVO': params.qtdAntes + params.quantidade,
         'QTD_ANTES': params.qtdAntes,
-        'QTD_AJUSTADO': params.quantidade,
+        'QTD_AJUSTADO': null,
         'AJUSTADO': 'N',
         'CONTABIL_FISICO': params.tipoEstoque == 'C' ? 'C' : 'F',
       },
@@ -122,7 +123,18 @@ class DioApiServiceImp implements ApiService {
       return List<Map<String, dynamic>>.from(result.data);
     } else {
       return List<Map<String, dynamic>>.from([
-        {'EST_ATUAL': 0, 'EST_FISICO': 0, 'QTD_NOVO': 0}
+        {
+          "CCUSTO": 0,
+          "MERCADORIA": "",
+          "DATA": "",
+          "QTD_NOVO": 0.0,
+          "QTD_ANTES": 0.0,
+          "QTD_AJUSTADO": 0.0,
+          "AJUSTADO": "N",
+          "CONTABIL_FISICO": "C",
+          "EST_ATUAL": 0.0,
+          "EST_FISICO": 0.0,
+        }
       ]);
     }
   }

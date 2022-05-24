@@ -11,58 +11,43 @@ class ProductResultWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      width: context.screenWidth,
-      decoration: BoxDecoration(
-        color: AppTheme.colors.primary.withAlpha(30),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  productEntity.DESCRICAO,
-                  textAlign: TextAlign.center,
-                  style: AppTheme.textStyles.titleMercadoria,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          if (productEntity.DESCRICAO != 'Produto não encontrado' &&
-              productEntity.DESCRICAO != 'DESCRICAO')
-            Row(
+    return productEntity.DESCRICAO != 'DESCRICAO'
+        ? Container(
+            padding: const EdgeInsets.all(20),
+            width: context.screenWidth,
+            decoration: BoxDecoration(
+              color: AppTheme.colors.primary.withAlpha(30),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Estoque contado hoje: ',
-                  style: AppTheme.textStyles.textoSairApp,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        productEntity.DESCRICAO,
+                        textAlign: TextAlign.center,
+                        style: AppTheme.textStyles.titleMercadoria,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(productEntity.EST_CONTADO!.Litros()),
+                const SizedBox(height: 5),
+                if (productEntity.DESCRICAO != 'Produto não encontrado' &&
+                    productEntity.DESCRICAO != 'DESCRICAO')
+                  Row(
+                    children: [
+                      Text(
+                        'Estoque contado hoje: ',
+                        style: AppTheme.textStyles.textoSairApp,
+                      ),
+                      Text(productEntity.EST_CONTADO!.Litros()),
+                    ],
+                  ),
               ],
             ),
-          // if (productEntity.DESCRICAO != 'Produto não encontrado') ...[
-          //   Text('Custo Real: ${productEntity.CUSTO_ULTIMO.reais()}'),
-          //   Text('Valor Venda: ${productEntity.VENDA.reais()}'),
-          //   const SizedBox(height: 10),
-          //   Row(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: [
-          //       Text(
-          //         'Estoque',
-          //         style: AppTheme.textStyles.titleEstoque,
-          //       ),
-          //     ],
-          //   ),
-          //   const SizedBox(height: 10),
-          //   Text('Estoque Contabil: ${productEntity.EST_ATUAL!.Litros()}'),
-          //   Text('Estoque Fisico:${productEntity.EST_FISICO!.Litros()}'),
-          // ]
-        ],
-      ),
-    );
+          )
+        : const SizedBox();
   }
 }

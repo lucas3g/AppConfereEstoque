@@ -1,6 +1,8 @@
 import 'package:confere_estoque/src/layers/data/datasources/ccustos_datasource/api/ccustos_get_all_datasource_imp.dart';
 import 'package:confere_estoque/src/layers/data/datasources/ccustos_datasource/ccustos_get_all_datasource.dart';
+import 'package:confere_estoque/src/layers/data/datasources/estoque_datasource/api/get_estoque_api_datasource_imp.dart';
 import 'package:confere_estoque/src/layers/data/datasources/estoque_datasource/api/update_estoque_api_datasource_imp.dart';
+import 'package:confere_estoque/src/layers/data/datasources/estoque_datasource/get_estoque_datasource.dart';
 import 'package:confere_estoque/src/layers/data/datasources/estoque_datasource/update_estoque_datasource.dart';
 import 'package:confere_estoque/src/layers/data/datasources/login_datasource/api/login_signin_api_datasource_imp.dart';
 import 'package:confere_estoque/src/layers/data/datasources/login_datasource/local/login_logout_local_datasource_imp.dart';
@@ -9,17 +11,21 @@ import 'package:confere_estoque/src/layers/data/datasources/login_datasource/log
 import 'package:confere_estoque/src/layers/data/datasources/product_datasource/api/product_get_api_datasource_imp.dart';
 import 'package:confere_estoque/src/layers/data/datasources/product_datasource/product_get_datasource.dart';
 import 'package:confere_estoque/src/layers/data/repositories/ccustos_repositories/ccustos_get_all_repository_imp.dart';
+import 'package:confere_estoque/src/layers/data/repositories/estoque_repositories/get_estoque_repository_imp.dart';
 import 'package:confere_estoque/src/layers/data/repositories/estoque_repositories/update_estoque_repository.dart';
 import 'package:confere_estoque/src/layers/data/repositories/login_repositories/login_logout_repository_imp.dart';
 import 'package:confere_estoque/src/layers/data/repositories/login_repositories/login_signin_repository_imp.dart';
 import 'package:confere_estoque/src/layers/data/repositories/product_repositories/product_get_repository_imp.dart';
 import 'package:confere_estoque/src/layers/domain/repositories/ccustos_repositories/ccustos_get_all_repository.dart';
+import 'package:confere_estoque/src/layers/domain/repositories/estoque_repositories/get_estoque_repository.dart';
 import 'package:confere_estoque/src/layers/domain/repositories/estoque_repositories/update_estoque_repository.dart';
 import 'package:confere_estoque/src/layers/domain/repositories/login_repositories/login_logout_repository.dart';
 import 'package:confere_estoque/src/layers/domain/repositories/login_repositories/login_signing_repository.dart';
 import 'package:confere_estoque/src/layers/domain/repositories/product_repositories/product_get_repository.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/ccustos_usecases/ccustos_get_all_usecases.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/ccustos_usecases/ccustos_get_all_usecases_imp.dart';
+import 'package:confere_estoque/src/layers/domain/usecases/estoque_usecases/get_estoque_usecase.dart';
+import 'package:confere_estoque/src/layers/domain/usecases/estoque_usecases/get_estoque_usecase_imp.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/estoque_usecases/update_estoque_usecase.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/estoque_usecases/update_estoque_usecase_imp.dart';
 import 'package:confere_estoque/src/layers/domain/usecases/login_usecases/login_logout_usecase.dart';
@@ -54,7 +60,12 @@ class Inject {
     //SERVICES
     getIt.registerLazySingleton<ApiService>(
       () => DioApiServiceImp(
-        dio: Dio(),
+        dio: Dio(
+          BaseOptions(
+            connectTimeout: 5000,
+            receiveTimeout: 5000,
+          ),
+        ),
       ),
     );
 
@@ -90,6 +101,12 @@ class Inject {
       ),
     );
 
+    getIt.registerLazySingleton<GetEstoqueDataSource>(
+      () => GetEstoqueApiDataSourceImp(
+        apiService: getIt(),
+      ),
+    );
+
     //REPOSITORIES
     getIt.registerLazySingleton<LoginSignInRepository>(
       () => LoginSignInRepositoryImp(loginSigninDataSource: getIt()),
@@ -111,6 +128,10 @@ class Inject {
       () => UpdateEstoqueRepositoryImp(updateEstoqueDataSource: getIt()),
     );
 
+    getIt.registerLazySingleton<GetEstoqueRepository>(
+      () => GetEstoqueRepositoryImp(getEstoqueDataSource: getIt()),
+    );
+
     //USESCASES
     getIt.registerLazySingleton<LoginSignInUseCase>(
       () => LoginSignInUseCaseImp(loginSignInRepository: getIt()),
@@ -130,6 +151,10 @@ class Inject {
 
     getIt.registerLazySingleton<UpdateEstoqueUseCase>(
       () => UpdateEstoqueUseCaseImp(updateEstoqueRepository: getIt()),
+    );
+
+    getIt.registerLazySingleton<GetEstoqueUseCase>(
+      () => GetEstoqueUseCaseImp(getEstoqueRepository: getIt()),
     );
 
     //BLOCS
@@ -156,6 +181,7 @@ class Inject {
     getIt.registerLazySingleton<EstoqueBloc>(
       () => EstoqueBloc(
         updateEstoqueUseCase: getIt(),
+        getEstoqueUseCase: getIt(),
         estoques: Estoques.contabil,
       ),
     );

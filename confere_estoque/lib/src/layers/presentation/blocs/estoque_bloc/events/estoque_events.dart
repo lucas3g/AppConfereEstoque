@@ -15,3 +15,12 @@ class UpdateEstoqueEvent extends EstoqueEvents {
     required this.tipoEstoque,
   });
 }
+
+class GetEstoqueEvent extends EstoqueEvents {
+  final String codigo;
+  final int ccusto;
+  GetEstoqueEvent({
+    required this.codigo,
+    required this.ccusto,
+  });
+}
