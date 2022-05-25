@@ -16,6 +16,12 @@ class _RadioGroupCFWidgetState extends State<RadioGroupCFWidget> {
   final blocEstoque = GetIt.I.get<EstoqueBloc>();
 
   @override
+  void initState() {
+    super.initState();
+    blocEstoque.estoques = Estoques.fisico;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<EstoqueBloc, EstoqueStates>(
         bloc: blocEstoque,

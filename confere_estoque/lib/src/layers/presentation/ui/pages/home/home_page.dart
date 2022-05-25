@@ -191,6 +191,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBarWidget(context: context),
       body: Padding(
         padding: EdgeInsets.only(
@@ -262,6 +263,7 @@ class _HomePageState extends State<HomePage> {
                             } else {
                               codigoController.clear();
                             }
+                            descController.clear();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
