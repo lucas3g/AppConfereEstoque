@@ -51,6 +51,9 @@ dependencies:
   shimmer: ^2.0.0
   flutter_masked_text2: ^0.9.1
   cached_network_image: ^3.2.1
+  i18n_extension: ^5.0.0
+  flutter_localizations:
+    sdk: flutter
   
 
 dev_dependencies:
