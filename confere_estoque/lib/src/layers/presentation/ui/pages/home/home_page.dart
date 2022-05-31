@@ -175,6 +175,9 @@ class _HomePageState extends State<HomePage> {
                             );
 
                             setState(() {});
+                            await Future.delayed(
+                                const Duration(milliseconds: 300));
+                            qtd.requestFocus();
                           },
                         );
                       },
