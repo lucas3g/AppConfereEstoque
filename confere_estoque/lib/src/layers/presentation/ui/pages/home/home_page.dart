@@ -52,11 +52,13 @@ class _HomePageState extends State<HomePage> {
 
   late List<ProductEntity> productEntitySelected = [];
 
+  late bool checkCamera = false;
+
   @override
   void initState() {
     super.initState();
 
-    subEstoque = blocEstoque.stream.listen((state) {
+    subEstoque = blocEstoque.stream.listen((state) async {
       if (state is EstoqueSuccessState) {
         MySnackBar(
           message: 'Successo. Estoque inserido.',
@@ -64,6 +66,9 @@ class _HomePageState extends State<HomePage> {
         codigoController.clear();
         descController.clear();
         qtdController.text = '';
+        if (checkCamera) {
+          await openCamera();
+        }
       }
 
       if (state is EstoqueGetSuccessState) {
@@ -79,7 +84,7 @@ class _HomePageState extends State<HomePage> {
       if (state is EstoqueErrorState) {
         MySnackBar(
           message:
-              'Opss... Erro ao tentar atualizar o estoque. \n ${state.message}',
+              'Opss... Erro ao tentar atualizar o estoque. \n ${state.message.replaceAll('Exception:', '')}',
         );
       }
     });
@@ -191,9 +196,30 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> openCamera() async {
+    codigoController.text = await FlutterBarcodeScanner.scanBarcode(
+        '#ffcf1f36', 'Fechar', false, ScanMode.BARCODE);
+
+    if (codigoController.text.trim() != '-1') {
+      blocProduct.add(
+        ProductGetEvent(
+          codigo: codigoController.text.trim(),
+          descricao: '',
+          ccusto: blocCCusto.ccusto,
+        ),
+      );
+
+      qtd.requestFocus();
+    } else {
+      codigoController.clear();
+    }
+    descController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBarWidget(context: context),
       body: Padding(
         padding: EdgeInsets.only(
@@ -245,27 +271,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           onPressed: () async {
-                            codigoController.text =
-                                await FlutterBarcodeScanner.scanBarcode(
-                                    '#ffcf1f36',
-                                    'Fechar',
-                                    false,
-                                    ScanMode.BARCODE);
-
-                            if (codigoController.text.trim() != '-1') {
-                              blocProduct.add(
-                                ProductGetEvent(
-                                  codigo: codigoController.text.trim(),
-                                  descricao: '',
-                                  ccusto: blocCCusto.ccusto,
-                                ),
-                              );
-
-                              qtd.requestFocus();
-                            } else {
-                              codigoController.clear();
-                            }
-                            descController.clear();
+                            await openCamera();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -413,6 +419,34 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SizedBox(height: context.screenHeight * .005),
                 const RadioGroupCFWidget(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Checkbox(
+                      activeColor: AppTheme.colors.primary,
+                      value: checkCamera,
+                      onChanged: (_) {
+                        setState(() {
+                          checkCamera = !checkCamera;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            checkCamera = !checkCamera;
+                          });
+                        },
+                        child: Text(
+                          'Abrir camera logo apos atualizar estoque?',
+                          style: AppTheme.textStyles.textoSairApp,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
                 SizedBox(height: context.screenHeight * .005),
                 BlocBuilder<ProductBloc, ProductStates>(
                     bloc: blocProduct,

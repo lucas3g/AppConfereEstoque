@@ -43,6 +43,9 @@ class LoginSignInApiDataSourceImp implements LoginSigninDataSource {
         return Left(Exception('Error datasource'));
       }
     } on DioError catch (e) {
+      if (e.message.contains('time')) {
+        return Left(Exception('Perda de conexão...'));
+      }
       return Left(Exception(e.message));
     }
   }

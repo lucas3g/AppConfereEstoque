@@ -5,7 +5,6 @@ import 'package:confere_estoque/src/layers/presentation/ui/pages/login/widgets/m
 import 'package:confere_estoque/src/layers/services/shared_service.dart';
 import 'package:confere_estoque/src/theme/app_theme.dart';
 import 'package:confere_estoque/src/utils/my_snackbar.dart';
-import 'package:easy_mask/easy_mask.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:page_transition/page_transition.dart';
@@ -76,9 +75,6 @@ class _ConfigPageState extends State<ConfigPage> {
                     textEditingController: ipController,
                     keyboardType: TextInputType.number,
                     formKey: keyIp,
-                    inputFormaters: [
-                      TextInputMask(mask: '999.999.999.999'),
-                    ],
                     maxLength: 15,
                     onFieldSubmitted: (value) {
                       porta.requestFocus();

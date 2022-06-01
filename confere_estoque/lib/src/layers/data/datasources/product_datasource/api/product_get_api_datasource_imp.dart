@@ -63,6 +63,9 @@ class ProductGetApiDataSourceImp implements ProductGetDataSource {
 
       return Left(Exception('Erro no datasource'));
     } on DioError catch (e) {
+      if (e.message.contains('time')) {
+        return Left(Exception('Perda de conexão...'));
+      }
       return Left(Exception(e.message));
     }
   }

@@ -62,7 +62,7 @@ class _ButtonLoginWidgetState extends State<ButtonLoginWidget> {
       } else if (state is LoginErrorState) {
         MySnackBar(
           message:
-              'Opss... Não foi possivel fazer o login. Tente novamente. \n ${state.message}',
+              'Opss... Não foi possivel fazer o login. Tente novamente. \n ${state.message.replaceAll('Exception:', '')}',
         );
       }
     });
