@@ -1,6 +1,7 @@
 import 'package:confere_estoque/src/layers/services/api_service.dart';
 import 'package:confere_estoque/src/layers/services/helpers/params.dart';
 import 'package:confere_estoque/src/layers/services/shared_service.dart';
+import 'package:confere_estoque/src/utils/my_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11,19 +12,24 @@ class DioApiServiceImp implements ApiService {
 
   @override
   Future<Map<String, dynamic>> getUser(LoginParams params) async {
-    final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
-    final result = await dio.get(
-      '$ipServer/login/',
-      options: Options(
-        headers: {
-          'cnpj': params.cnpj,
-          'usuario': params.login,
-          'senha': params.password,
-        },
-      ),
-    );
+    try {
+      final ipServer = 'http://${GetIt.I.get<SharedService>().readIpServer()}';
+      final result = await dio.get(
+        '$ipServer/login/',
+        options: Options(
+          headers: {
+            'cnpj': params.cnpj,
+            'usuario': params.login,
+            'senha': params.password,
+          },
+        ),
+      );
 
-    return result.data;
+      return result.data;
+    } catch (e) {
+      MySnackBar(message: e.toString());
+      rethrow;
+    }
   }
 
   @override
